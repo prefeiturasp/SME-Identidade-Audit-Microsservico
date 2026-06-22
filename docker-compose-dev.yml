@@ -1,0 +1,15 @@
+services:
+  identidade_auditoria:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+    command: python manage.py runserver 0.0.0.0:${PORT_WEB:-8002}
+    ports:
+      - "${PORT_WEB:-8002}:${PORT_WEB:-8002}"
+    restart: unless-stopped

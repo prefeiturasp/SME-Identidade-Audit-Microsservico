@@ -1,0 +1,59 @@
+[project]
+name = "SME-Identidade-Audit-Microsservico"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+authors = [{ name = "SME" }]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "apps*",
+    "config*",
+]
+
+[tool.black]
+line-length = 79
+target-version = ["py312"]
+exclude = "/migrations/"
+
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+exclude = ["migrations"]
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "D"]
+ignore = ["D203", "D212", "D104", "D105", "D106", "D107", "D102", "N815", "N803"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 120
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.mypy]
+python_version = "3.12"
+exclude = ".*/migrations/.*"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
