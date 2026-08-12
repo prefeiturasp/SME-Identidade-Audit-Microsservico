@@ -14,6 +14,7 @@ from apps.auditoria.servicos import (
 )
 
 _INSTANTE_MS = 1786000000000
+_IP_ORIGEM_TESTE = "203.0.113.10"
 
 
 def _dados(
@@ -28,7 +29,7 @@ def _dados(
         "usuario_id": "5c29cc47",
         "realm": "COTIC",
         "client_id": "auto-servico-qa",
-        "ip_origem": "200.10.0.1",
+        "ip_origem": _IP_ORIGEM_TESTE,
         "timestamp_evento": timestamp_ms,
         "detalhes": {"username": "1234567"},
     }

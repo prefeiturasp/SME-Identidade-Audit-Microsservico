@@ -25,7 +25,7 @@ class TestTaskPersistirLote:
                     "usuario_id": "5c29cc47",
                     "realm": "COTIC",
                     "client_id": "auto-servico-qa",
-                    "ip_origem": "200.10.0.1",
+                    "ip_origem": "203.0.113.10",
                     "timestamp_evento": 1786000000000,
                     "detalhes": {},
                 }

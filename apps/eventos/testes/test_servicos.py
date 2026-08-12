@@ -30,7 +30,7 @@ def _bruto(instante: int, tipo: str = "LOGIN") -> dict[str, Any]:
         "clientId": "auto-servico-qa",
         "userId": "5c29cc47",
         "sessionId": f"sessao-{instante}",
-        "ipAddress": "200.10.0.1",
+        "ipAddress": "203.0.113.10",
         "details": {},
     }
 
@@ -44,7 +44,7 @@ def _admin_bruto(instante: int) -> dict[str, Any]:
         "authDetails": {
             "userId": "quem-executou",
             "clientId": "sme-identidade-admin",
-            "ipAddress": "200.10.0.1",
+            "ipAddress": "203.0.113.10",
         },
         "operationType": "CREATE",
         "resourceType": "USER",

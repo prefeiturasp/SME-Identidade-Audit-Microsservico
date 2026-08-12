@@ -29,7 +29,7 @@ _EVENTO = {
     "realmId": "COTIC",
     "clientId": "auto-servico-qa",
     "userId": "5c29cc47",
-    "ipAddress": "200.10.0.1",
+    "ipAddress": "203.0.113.10",
     "details": {"username": "1234567"},
 }
 
@@ -40,7 +40,7 @@ _ADMIN_EVENT = {
     "authDetails": {
         "clientId": "0d06cf29-d522-4fb9-ad68-e8079dbb468c",
         "userId": "eced19ec-2b8a-4d8f-84fb-f2d586e14f74",
-        "ipAddress": "172.21.2.65",
+        "ipAddress": "203.0.113.20",
     },
     "operationType": "CREATE",
     "resourceType": "USER",

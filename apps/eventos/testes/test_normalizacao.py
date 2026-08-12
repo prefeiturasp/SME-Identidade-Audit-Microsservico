@@ -20,7 +20,7 @@ def _bruto(**sobrescritas: Any) -> dict[str, Any]:
         "clientId": "auto-servico-qa",
         "userId": "5c29cc47-0000-0000-0000-000000000000",
         "sessionId": "sessao-1",
-        "ipAddress": "200.10.0.1",
+        "ipAddress": "203.0.113.10",
         "details": {"username": "1234567", "auth_method": "openid-connect"},
     }
     evento.update(sobrescritas)
@@ -114,7 +114,7 @@ class TestNormalizarEvento:
         assert normalizado["tipo_evento"] == "LOGIN"
         assert normalizado["realm"] == "COTIC"
         assert normalizado["client_id"] == "auto-servico-qa"
-        assert normalizado["ip_origem"] == "200.10.0.1"
+        assert normalizado["ip_origem"] == "203.0.113.10"
         assert normalizado["timestamp_evento"] == 1786000000000
         assert normalizado["usuario_id"] == (
             "5c29cc47-0000-0000-0000-000000000000"
@@ -178,7 +178,7 @@ def _admin_bruto(**sobrescritas: Any) -> dict[str, Any]:
             "realmId": "933c2e91-9a7e-408a-9dd3-97c9aa1c5336",
             "clientId": "0d06cf29-d522-4fb9-ad68-e8079dbb468c",
             "userId": "eced19ec-2b8a-4d8f-84fb-f2d586e14f74",
-            "ipAddress": "172.21.2.65",
+            "ipAddress": "203.0.113.20",
         },
         "operationType": "CREATE",
         "resourceType": "USER",
@@ -281,7 +281,7 @@ class TestNormalizarAdminEvent:
         assert normalizado["client_id"] == (
             "0d06cf29-d522-4fb9-ad68-e8079dbb468c"
         )
-        assert normalizado["ip_origem"] == "172.21.2.65"
+        assert normalizado["ip_origem"] == "203.0.113.20"
 
     def test_decodifica_representation_para_objeto(self) -> None:
         """Deve converter o representation (string JSON) em objeto.
