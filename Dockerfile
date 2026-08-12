@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /install /usr/local
 COPY apps /app/apps
 COPY config /app/config
+COPY scripts /app/scripts
 COPY manage.py /app/
 
 RUN chown -R app:app /app

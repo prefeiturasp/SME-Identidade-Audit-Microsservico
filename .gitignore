@@ -17,3 +17,6 @@ build/
 .DS_Store
 staticfiles
 docs/_build
+celerybeat-schedule
+sonar-project.properties
+pytest-report.xml

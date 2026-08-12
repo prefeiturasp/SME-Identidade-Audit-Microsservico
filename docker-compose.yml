@@ -9,3 +9,49 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+
+  # Workers separados por fila: a escrita em lote no Postgres é a etapa
+  # lenta e, num único worker, seguraria atrás de si a recepção dos
+  # avisos vindos do Gateway — que precisam ser aceitos de imediato.
+  auditoria_worker_recepcao:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+    entrypoint: []
+    command: >
+      celery -A config.celery:app worker
+      --loglevel=INFO -Q auditoria_recepcao
+    restart: unless-stopped
+
+  auditoria_worker_persistencia:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+    entrypoint: []
+    command: >
+      celery -A config.celery:app worker
+      --loglevel=INFO -Q auditoria_persistencia
+    restart: unless-stopped
+
+  auditoria_beat:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+    entrypoint: []
+    command: celery -A config.celery:app beat --loglevel=INFO
+    restart: unless-stopped
