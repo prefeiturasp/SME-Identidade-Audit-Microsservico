@@ -16,3 +16,51 @@ Core
 
 .. automodule:: apps.core.api.urls
    :members:
+
+Autenticação
+------------
+
+.. automodule:: apps.autenticacao.api_key
+   :members:
+
+Eventos
+-------
+
+.. automodule:: apps.eventos.api.views
+   :members:
+
+.. automodule:: apps.eventos.api.serializers
+   :members:
+
+.. automodule:: apps.eventos.clientes.keycloak_admin
+   :members:
+
+.. automodule:: apps.eventos.normalizacao
+   :members:
+
+.. automodule:: apps.eventos.servicos
+   :members:
+
+.. automodule:: apps.eventos.tasks
+   :members:
+
+Auditoria
+---------
+
+.. automodule:: apps.auditoria.models
+   :members:
+
+.. automodule:: apps.auditoria.servicos
+   :members:
+
+.. automodule:: apps.auditoria.tasks
+   :members:
+
+.. automodule:: apps.auditoria.api.views
+   :members:
+
+.. automodule:: apps.auditoria.api.serializers
+   :members:
+
+.. automodule:: apps.auditoria.api.paginacao
+   :members:
