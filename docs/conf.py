@@ -44,7 +44,7 @@ root_doc = "index"
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "_cov", "Thumbs.db", ".DS_Store"]
 
-html_theme = "alabaster"
+html_theme = "sphinx_rtd_theme"
 html_title = "SME-Identidade-Audit-Microsservico"
 html_short_title = "Identidade Auditoria Docs"
 html_static_path = ["_static"]
