@@ -9,10 +9,6 @@ services:
     env_file:
       - .env
 
-    environment:
-      IDENTIDADE_AUDITORIA_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres/${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}
-      URL_KEYDB: redis://keydb:6379/0
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,8 +76,6 @@ services:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
-      IDENTIDADE_AUDITORIA_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres/${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}
-      URL_KEYDB: redis://keydb:6379/0
       AUDITORIA_WORKER_FILAS: "auditoria_captura_usuario"
     volumes:
       - .:/app
@@ -103,8 +97,6 @@ services:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
-      IDENTIDADE_AUDITORIA_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres/${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}
-      URL_KEYDB: redis://keydb:6379/0
       AUDITORIA_WORKER_FILAS: "auditoria_captura_admin"
     volumes:
       - .:/app
@@ -126,8 +118,6 @@ services:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
-      IDENTIDADE_AUDITORIA_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres/${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}
-      URL_KEYDB: redis://keydb:6379/0
       AUDITORIA_WORKER_FILAS: "auditoria_persistencia"
     volumes:
       - .:/app
@@ -149,8 +139,6 @@ services:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
-      IDENTIDADE_AUDITORIA_DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres/${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}
-      URL_KEYDB: redis://keydb:6379/0
     volumes:
       - .:/app
     depends_on:
@@ -159,6 +147,24 @@ services:
       keydb:
         condition: service_healthy
     command: celery -A config.celery:app beat --loglevel=INFO
+    restart: unless-stopped
+
+  auditoria_flower:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: identidade_auditoria_flower_dev
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+    entrypoint: []
+    command: >
+      celery -A config.celery:app flower
+      --port=5555
+    ports:
+      - "${PORT_FLOWER:-5555}:5555"
     restart: unless-stopped
 
 volumes:
