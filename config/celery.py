@@ -15,6 +15,17 @@ app = Celery("identidade_auditoria")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
+# Mesmo prefixo usado no roteamento das tasks (CELERY_TASK_ROUTES, em
+# settings.py) — sem repetir aqui, um Beat local isolado por prefixo
+# continuaria agendando ciclos nas filas de produção sem prefixo,
+# competindo com os workers reais em vez dos locais.
+_PREFIXO_FILA = getattr(settings, "AUDITORIA_PREFIXO_FILA", "")
+
+
+def _fila(nome: str) -> str:
+    return f"{_PREFIXO_FILA}{nome}"
+
+
 # O ciclo agendado é o que garante cobertura completa: atividade fora
 # do alcance do Gateway (Admin Console, integrações máquina a máquina,
 # OIDC direto) só chega por aqui. O aviso sob demanda apenas antecipa
@@ -25,7 +36,7 @@ app.conf.beat_schedule = {
         "schedule": crontab(
             minute=f"*/{settings.AUDITORIA_INTERVALO_POLL_MINUTOS}"
         ),
-        "options": {"queue": "auditoria_captura_usuario"},
+        "options": {"queue": _fila("auditoria_captura_usuario")},
     },
     # Canal separado do de eventos de usuário: cobre ações
     # administrativas (criação de usuário, entre outras), que só
@@ -36,7 +47,7 @@ app.conf.beat_schedule = {
         "schedule": crontab(
             minute=f"*/{settings.AUDITORIA_INTERVALO_POLL_MINUTOS}"
         ),
-        "options": {"queue": "auditoria_captura_admin"},
+        "options": {"queue": _fila("auditoria_captura_admin")},
     },
     # Agendado mesmo com o expurgo desligado: a task verifica a
     # própria autorização a cada execução, então ligar a remoção não
@@ -44,7 +55,7 @@ app.conf.beat_schedule = {
     "auditoria-expurgo-diario": {
         "task": "task_auditoria_expurgar_eventos",
         "schedule": crontab(hour=3, minute=30),
-        "options": {"queue": "auditoria_persistencia"},
+        "options": {"queue": _fila("auditoria_persistencia")},
     },
 }
 
