@@ -4,7 +4,8 @@ RUN          = $(COMPOSE) run --rm identidade_auditoria
 PYTEST_ARGS ?= --cov=apps --cov-report=term-missing --cov-fail-under=80
 
 .PHONY: run build stop \
-        test test-core \
+        test test-core test-eventos test-auditoria \
+        migrations migrate \
         lint coverage schema docs docs-clean help
 
 help:
@@ -20,6 +21,12 @@ help:
 	@echo ""
 	@echo "  Testes por app:"
 	@echo "    make test-core        — apenas apps.core"
+	@echo "    make test-eventos     — apenas apps.eventos"
+	@echo "    make test-auditoria   — apenas apps.auditoria"
+	@echo ""
+	@echo "  Banco:"
+	@echo "    make migrations       — gera migrations pendentes"
+	@echo "    make migrate          — aplica migrations"
 	@echo ""
 	@echo "  Qualidade:"
 	@echo "    make lint             — ruff + black + isort + mypy"
@@ -52,15 +59,34 @@ test:
 # ---------------------------------------------------------------------------
 
 test-core:
-	$(RUN) python -m pytest apps/core/tests/ \
+	$(RUN) python -m pytest apps/core/testes/ \
 		--cov=apps.core --cov-report=term-missing -v
+
+test-eventos:
+	$(RUN) python -m pytest apps/eventos/testes/ \
+		--cov=apps.eventos --cov-report=term-missing -v
+
+test-auditoria:
+	$(RUN) python -m pytest apps/auditoria/testes/ \
+		--cov=apps.auditoria --cov-report=term-missing -v
+
+# ---------------------------------------------------------------------------
+# Banco
+# ---------------------------------------------------------------------------
+
+migrations:
+	$(RUN) python manage.py makemigrations
+
+migrate:
+	$(RUN) python manage.py migrate
 
 # ---------------------------------------------------------------------------
 # Qualidade
 # ---------------------------------------------------------------------------
 
 lint:
-	$(EXEC) bash -c "\
+	$(RUN) bash -c "\
+		black --check apps config scripts && \
 		ruff check . && \
 		mypy apps config"
 

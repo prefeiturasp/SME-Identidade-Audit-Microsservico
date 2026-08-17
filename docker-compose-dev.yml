@@ -9,7 +9,163 @@ services:
     env_file:
       - .env
 
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
+
     command: python manage.py runserver 0.0.0.0:${PORT_WEB:-8002}
     ports:
       - "${PORT_WEB:-8002}:${PORT_WEB:-8002}"
     restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: identidade_auditoria_db
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}
+
+    ports:
+      - "${PORT_POSTGRES:-5442}:5432"
+
+    volumes:
+      - identidade_auditoria_db:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${IDENTIDADE_AUDITORIA_DB_NAME:-identidade_auditoria}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keydb:
+    image: eqalpha/keydb:latest
+    container_name: identidade_auditoria_keydb
+
+    ports:
+      - "${PORT_KEYDB:-6382}:6379"
+
+    healthcheck:
+      test: ["CMD", "keydb-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3 workers separados por fila, replicando o padrão de pods do
+  # SME-Identidade-ETL (docker-compose-dev.yml: etl_worker_celery/
+  # etl_worker_keycloak/etl_worker_token_ms) — um por natureza de
+  # trabalho, não um único processo escutando tudo. Captura de usuário
+  # e captura de admin consultam canais/endpoints independentes do
+  # Keycloak; uma leitura lenta num canal não deve atrasar o outro. A
+  # escrita em lote no Postgres é a etapa mais pesada e não pode
+  # segurar atrás dela a recepção do aviso do Gateway.
+  auditoria_worker_captura_usuario:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: identidade_auditoria_worker_captura_usuario_dev
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+      AUDITORIA_WORKER_FILAS: "auditoria_captura_usuario"
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
+    command: python /app/scripts/watch_celery.py
+    restart: unless-stopped
+
+  auditoria_worker_captura_admin:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: identidade_auditoria_worker_captura_admin_dev
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+      AUDITORIA_WORKER_FILAS: "auditoria_captura_admin"
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
+    command: python /app/scripts/watch_celery.py
+    restart: unless-stopped
+
+  auditoria_worker_persistencia:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: identidade_auditoria_worker_persistencia_dev
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+      AUDITORIA_WORKER_FILAS: "auditoria_persistencia"
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
+    command: python /app/scripts/watch_celery.py
+    restart: unless-stopped
+
+  auditoria_beat:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: identidade_auditoria_beat_dev
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
+    command: celery -A config.celery:app beat --loglevel=INFO
+    restart: unless-stopped
+
+  auditoria_flower:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: identidade_auditoria_flower_dev
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+    entrypoint: []
+    command: >
+      celery -A config.celery:app flower
+      --port=5555
+    ports:
+      - "${PORT_FLOWER:-5555}:5555"
+    restart: unless-stopped
+
+volumes:
+  identidade_auditoria_db:
