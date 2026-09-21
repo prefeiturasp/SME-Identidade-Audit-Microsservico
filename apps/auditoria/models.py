@@ -105,3 +105,85 @@ class CheckpointCaptura(models.Model):
     def __str__(self) -> str:
         """Retorna o realm, canal e a posição atual do marcador."""
         return f"{self.realm}/{self.canal}: {self.ultimo_timestamp}"
+
+
+class IdentificadorUsuarioAuditoria(models.Model):
+    """Relaciona identificadores históricos de um usuário ao seu usuario_id.
+
+    E-mail, CPF e RF são identificadores mutáveis e servem apenas como
+    caminhos alternativos para encontrar o usuario_id.
+
+    Os registros são históricos: quando um identificador muda, o valor
+    anterior não é alterado nem removido. Um novo registro é criado
+    apontando para o mesmo usuario_id.
+    """
+
+    class Tipo(models.TextChoices):
+        EMAIL = "EMAIL", "E-mail"
+        CPF = "CPF", "CPF"
+        RF = "RF", "RF"
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    usuario_id = models.CharField(
+        max_length=64,
+        db_index=True,
+    )
+
+    realm = models.CharField(
+        max_length=100,
+    )
+
+    tipo = models.CharField(
+        max_length=10,
+        choices=Tipo.choices,
+    )
+
+    valor = models.CharField(
+        max_length=255,
+    )
+
+    criado_em = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        verbose_name = "Identificador de usuário de auditoria"
+        verbose_name_plural = "Identificadores de usuários de auditoria"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "realm",
+                    "usuario_id",
+                    "tipo",
+                    "valor",
+                ],
+                name="uniq_identificador_usuario_auditoria",
+            )
+        ]
+
+        indexes = [
+            models.Index(
+                fields=[
+                    "realm",
+                    "tipo",
+                    "valor",
+                ],
+                name="idx_ident_auditoria_busca",
+            ),
+            models.Index(
+                fields=[
+                    "realm",
+                    "usuario_id",
+                ],
+                name="idx_ident_auditoria_usuario",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.tipo}: {self.valor} -> {self.usuario_id}"
