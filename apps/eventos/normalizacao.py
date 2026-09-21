@@ -180,3 +180,57 @@ def normalizar_admin_event(
         "timestamp_evento": int(evento.get("time") or 0),
         "detalhes": detalhes,
     }
+
+
+def _primeiro_atributo(
+    atributos: dict[str, Any],
+    nome: str,
+) -> str | None:
+    valores = atributos.get(nome)
+
+    if not isinstance(valores, list) or not valores:
+        return None
+
+    valor = valores[0]
+
+    if not isinstance(valor, str):
+        return None
+
+    return valor
+
+def _normalizar_email(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    return valor.strip().casefold()
+
+
+def _normalizar_cpf(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    return "".join(caractere for caractere in valor if caractere.isdigit())
+
+
+def _normalizar_rf(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    return valor.strip()
+
+def extrair_identificadores_usuario(
+    usuario: dict[str, Any],
+) -> dict[str, str | None]:
+    """Extrai os identificadores relevantes da resposta do Keycloak."""
+    atributos = usuario.get("attributes") or {}
+
+    return {
+        "usuario_id": usuario.get("id"),
+        "email": _normalizar_email(usuario.get("email")),
+        "cpf": _normalizar_cpf(
+            _primeiro_atributo(atributos, "cpf")
+        ),
+        "rf": _normalizar_rf(
+            _primeiro_atributo(atributos, "rf")
+        ),
+    }
