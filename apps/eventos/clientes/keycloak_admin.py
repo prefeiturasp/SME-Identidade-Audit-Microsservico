@@ -241,7 +241,7 @@ def consultar_usuario(
     """
     token = obter_token_acesso()
 
-    url = f"{_url_base()}/admin/realms/" f"{realm}/users/{usuario_id}"
+    url = f"{_url_base()}/admin/realms/{realm}/users/{usuario_id}"
 
     try:
         resposta = httpx.get(
