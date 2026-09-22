@@ -6,6 +6,7 @@ from typing import Any
 from apps.eventos.normalizacao import (
     calcular_admin_event_id_origem,
     calcular_evento_id_origem,
+    extrair_identificadores_usuario,
     normalizar_admin_event,
     normalizar_evento,
 )
@@ -345,3 +346,83 @@ class TestNormalizarAdminEvent:
 
         assert normalizado["detalhes"]["operationType"] == "CREATE"
         assert normalizado["detalhes"]["resourceType"] == "USER"
+
+
+class TestExtrairIdentificadoresUsuario:
+    """Testes de extração dos identificadores do usuário."""
+
+    def test_extrai_e_normaliza_identificadores(self) -> None:
+        """Deve extrair e normalizar e-mail, CPF e RF."""
+        usuario = {
+            "id": "5c29cc47",
+            "email": " Teste.Usuario@TESTE.COM ",
+            "attributes": {
+                "cpf": ["123.456.789-01"],
+                "rf": [" 1234567 "],
+            },
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores == {
+            "usuario_id": "5c29cc47",
+            "email": "teste.usuario@teste.com",
+            "cpf": "12345678901",
+            "rf": "1234567",
+        }
+
+    def test_retorna_none_quando_identificadores_ausentes(
+        self,
+    ) -> None:
+        """Deve aceitar usuário sem e-mail, CPF ou RF."""
+        usuario = {
+            "id": "5c29cc47",
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores == {
+            "usuario_id": "5c29cc47",
+            "email": None,
+            "cpf": None,
+            "rf": None,
+        }
+
+    def test_ignora_atributos_em_formato_invalido(
+        self,
+    ) -> None:
+        """Deve ignorar atributos fora do formato esperado."""
+        usuario = {
+            "id": "5c29cc47",
+            "email": "",
+            "attributes": {
+                "cpf": [12345678901],
+                "rf": "1234567",
+            },
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores == {
+            "usuario_id": "5c29cc47",
+            "email": None,
+            "cpf": None,
+            "rf": None,
+        }
+
+    def test_ignora_listas_de_atributos_vazias(
+        self,
+    ) -> None:
+        """Deve tratar listas vazias como atributos ausentes."""
+        usuario = {
+            "id": "5c29cc47",
+            "attributes": {
+                "cpf": [],
+                "rf": [],
+            },
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores["cpf"] is None
+        assert identificadores["rf"] is None

@@ -17,6 +17,7 @@ from apps.eventos.clientes.keycloak_admin import (
     KeycloakAdminError,
     consultar_admin_events,
     consultar_eventos,
+    consultar_usuario,
     obter_token_acesso,
 )
 
@@ -46,6 +47,16 @@ _ADMIN_EVENT = {
     "resourceType": "USER",
     "resourcePath": "users/b63a36e7-61fd-449b-8d2c-8f684249ac1f",
     "representation": '{"username":"teste"}',
+}
+
+_USUARIO = {
+    "id": "5c29cc47",
+    "username": "1234567",
+    "email": "teste@teste.com",
+    "attributes": {
+        "cpf": ["12345678901"],
+        "rf": ["1234567"],
+    },
 }
 
 
@@ -346,3 +357,187 @@ class TestConsultarAdminEvents:
             pytest.raises(KeycloakAdminError),
         ):
             consultar_admin_events("COTIC")
+
+
+class TestConsultarUsuario:
+    """Testes de ``consultar_usuario``."""
+
+    def test_devolve_o_usuario_lido(self) -> None:
+        """Deve devolver a representação do usuário sem alteração."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "t"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                return_value=_resposta(
+                    200,
+                    _USUARIO,
+                ),
+            ),
+        ):
+            usuario = consultar_usuario(
+                realm="COTIC",
+                usuario_id="5c29cc47",
+            )
+
+        assert usuario == _USUARIO
+
+    def test_consulta_o_usuario_no_realm_informado(self) -> None:
+        """Deve consultar o usuário pelo ID no realm recebido."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "t"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                return_value=_resposta(
+                    200,
+                    _USUARIO,
+                ),
+            ) as get,
+        ):
+            consultar_usuario(
+                realm="OUTRO",
+                usuario_id="usuario-123",
+            )
+
+        url = get.call_args.args[0]
+
+        assert "/admin/realms/OUTRO/users/usuario-123" in url
+
+    def test_envia_o_token_no_cabecalho(self) -> None:
+        """Deve autenticar a consulta com o token obtido."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "token-abc"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                return_value=_resposta(
+                    200,
+                    _USUARIO,
+                ),
+            ) as get,
+        ):
+            consultar_usuario(
+                realm="COTIC",
+                usuario_id="5c29cc47",
+            )
+
+        cabecalhos = get.call_args.kwargs["headers"]
+
+        assert cabecalhos["Authorization"] == "Bearer token-abc"
+
+    def test_retorna_none_quando_usuario_nao_existe(self) -> None:
+        """Deve retornar None quando o Keycloak responder 404."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "t"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                return_value=_resposta(
+                    404,
+                    {},
+                ),
+            ),
+        ):
+            usuario = consultar_usuario(
+                realm="COTIC",
+                usuario_id="inexistente",
+            )
+
+        assert usuario is None
+
+    def test_falha_quando_a_consulta_e_recusada(self) -> None:
+        """Deve sinalizar erro quando a consulta for recusada."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "t"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                return_value=_resposta(
+                    403,
+                    {},
+                ),
+            ),
+            pytest.raises(KeycloakAdminError),
+        ):
+            consultar_usuario(
+                realm="COTIC",
+                usuario_id="5c29cc47",
+            )
+
+    def test_falha_quando_a_resposta_nao_e_um_objeto(self) -> None:
+        """Deve rejeitar resposta de usuário em formato inesperado."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "t"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                return_value=_resposta(
+                    200,
+                    [_USUARIO],
+                ),
+            ),
+            pytest.raises(KeycloakAdminError),
+        ):
+            consultar_usuario(
+                realm="COTIC",
+                usuario_id="5c29cc47",
+            )
+
+    def test_falha_quando_o_servidor_nao_responde(self) -> None:
+        """Deve sinalizar indisponibilidade ao consultar o usuário."""
+        with (
+            patch(
+                _POST,
+                return_value=_resposta(
+                    200,
+                    {"access_token": "t"},
+                    "POST",
+                ),
+            ),
+            patch(
+                _GET,
+                side_effect=httpx.ReadTimeout("demorou"),
+            ),
+            pytest.raises(KeycloakAdminError),
+        ):
+            consultar_usuario(
+                realm="COTIC",
+                usuario_id="5c29cc47",
+            )
