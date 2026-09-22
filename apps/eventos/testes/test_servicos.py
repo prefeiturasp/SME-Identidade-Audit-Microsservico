@@ -1,5 +1,6 @@
 """Testes da leitura de eventos e do marcador de captura."""
 
+from collections.abc import Iterator
 from typing import Any
 from unittest.mock import patch
 
@@ -58,6 +59,16 @@ def _admin_bruto(instante: int) -> dict[str, Any]:
         "resourceType": "USER",
         "resourcePath": "users/algum-id",
     }
+
+
+@pytest.fixture(autouse=True)
+def _mock_consulta_usuario_keycloak() -> Iterator[None]:
+    """Impede chamadas reais ao Keycloak durante os testes do serviço."""
+    with patch(
+        _CONSULTAR_USUARIO,
+        return_value=None,
+    ):
+        yield
 
 
 @pytest.mark.django_db
