@@ -69,20 +69,11 @@ def _normalizar_valor_identificador(
     if not valor:
         return None
 
-    valor = valor.strip()
-
-    if not valor:
-        return None
-
     if tipo == IdentificadorUsuarioAuditoria.Tipo.EMAIL:
         return valor.casefold()
 
     if tipo == IdentificadorUsuarioAuditoria.Tipo.CPF:
-        return "".join(
-            caractere
-            for caractere in valor
-            if caractere.isdigit()
-        )
+        return "".join(caractere for caractere in valor if caractere.isdigit())
 
     if tipo == IdentificadorUsuarioAuditoria.Tipo.RF:
         return valor
@@ -213,9 +204,6 @@ def _resolver_identificador_usuario(
             valor=rf,
         )
 
-    if not filtro:
-        return []
-
     return list(
         IdentificadorUsuarioAuditoria.objects.filter(filtro)
         .values_list(
@@ -313,13 +301,9 @@ def consultar_eventos(
     if usuario_id:
         valor = usuario_id.strip()
 
-        filtro_usuario = Q(
-            usuario_id=valor
-        )
+        filtro_usuario = Q(usuario_id=valor)
 
-        identificadores = _resolver_identificador_usuario(
-            valor
-        )
+        identificadores = _resolver_identificador_usuario(valor)
 
         for realm, usuario_id_resolvido in identificadores:
             filtro_usuario |= Q(
@@ -327,9 +311,7 @@ def consultar_eventos(
                 usuario_id=usuario_id_resolvido,
             )
 
-        eventos = eventos.filter(
-            filtro_usuario
-        )
+        eventos = eventos.filter(filtro_usuario)
 
     if client_id:
         eventos = eventos.filter(client_id=client_id)

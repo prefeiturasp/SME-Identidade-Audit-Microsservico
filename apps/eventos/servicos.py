@@ -100,8 +100,7 @@ def _registrar_identificadores_dos_usuarios(
             evento["realm"],
         )
         for evento in eventos
-        if evento.get("usuario_id")
-        and evento.get("realm")
+        if evento.get("usuario_id") and evento.get("realm")
     }
 
     for usuario_id, realm_id in usuarios:
@@ -113,9 +112,7 @@ def _registrar_identificadores_dos_usuarios(
         if not usuario:
             continue
 
-        identificadores = extrair_identificadores_usuario(
-            usuario
-        )
+        identificadores = extrair_identificadores_usuario(usuario)
 
         registrar_identificadores_usuario(
             realm=realm_id,

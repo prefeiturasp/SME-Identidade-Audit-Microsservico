@@ -198,6 +198,7 @@ def _primeiro_atributo(
 
     return valor
 
+
 def _normalizar_email(valor: str | None) -> str | None:
     if not valor:
         return None
@@ -218,6 +219,7 @@ def _normalizar_rf(valor: str | None) -> str | None:
 
     return valor.strip()
 
+
 def extrair_identificadores_usuario(
     usuario: dict[str, Any],
 ) -> dict[str, str | None]:
@@ -227,10 +229,6 @@ def extrair_identificadores_usuario(
     return {
         "usuario_id": usuario.get("id"),
         "email": _normalizar_email(usuario.get("email")),
-        "cpf": _normalizar_cpf(
-            _primeiro_atributo(atributos, "cpf")
-        ),
-        "rf": _normalizar_rf(
-            _primeiro_atributo(atributos, "rf")
-        ),
+        "cpf": _normalizar_cpf(_primeiro_atributo(atributos, "cpf")),
+        "rf": _normalizar_rf(_primeiro_atributo(atributos, "rf")),
     }

@@ -241,10 +241,7 @@ def consultar_usuario(
     """
     token = obter_token_acesso()
 
-    url = (
-        f"{_url_base()}/admin/realms/"
-        f"{realm}/users/{usuario_id}"
-    )
+    url = f"{_url_base()}/admin/realms/" f"{realm}/users/{usuario_id}"
 
     try:
         resposta = httpx.get(
@@ -269,8 +266,6 @@ def consultar_usuario(
     corpo = resposta.json()
 
     if not isinstance(corpo, dict):
-        raise KeycloakAdminError(
-            "Resposta de usuário em formato inesperado."
-        )
+        raise KeycloakAdminError("Resposta de usuário em formato inesperado.")
 
     return corpo
