@@ -7,10 +7,13 @@ import logging
 from typing import Any
 
 from django.conf import settings
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 
-from apps.auditoria.models import EventoAuditoria
+from apps.auditoria.models import (
+    EventoAuditoria,
+    IdentificadorUsuarioAuditoria,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +50,167 @@ def _para_evento(dados: dict[str, Any]) -> EventoAuditoria:
         ip_origem=dados.get("ip_origem") or None,
         timestamp_evento=_para_datetime(dados["timestamp_evento"]),
         detalhes=dados.get("detalhes") or {},
+    )
+
+
+def _normalizar_valor_identificador(
+    tipo: str,
+    valor: str | None,
+) -> str | None:
+    """Normaliza um identificador antes de persistir ou consultar.
+
+    Args:
+        tipo: Tipo do identificador (EMAIL, CPF ou RF).
+        valor: Valor recebido.
+
+    Returns:
+        Valor normalizado ou ``None`` quando vazio.
+    """
+    if not valor:
+        return None
+
+    if tipo == IdentificadorUsuarioAuditoria.Tipo.EMAIL:
+        return valor.casefold()
+
+    if tipo == IdentificadorUsuarioAuditoria.Tipo.CPF:
+        return "".join(caractere for caractere in valor if caractere.isdigit())
+
+    if tipo == IdentificadorUsuarioAuditoria.Tipo.RF:
+        return valor
+
+    return valor
+
+
+def registrar_identificadores_usuario(
+    realm: str,
+    identificadores: dict[str, str | None],
+) -> None:
+    """Registra os identificadores conhecidos de um usuário.
+
+    Os identificadores são históricos. Quando e-mail, CPF ou RF
+    mudarem, um novo registro será criado para o mesmo ``usuario_id``
+    sem remover os valores anteriores.
+
+    A restrição de unicidade do modelo, combinada com
+    ``ignore_conflicts=True``, impede a criação de registros
+    duplicados quando o mesmo identificador for observado novamente.
+
+    Args:
+        realm: Realm ao qual o usuário pertence.
+        identificadores: Dicionário contendo ``usuario_id`` e,
+            opcionalmente, ``email``, ``cpf`` e ``rf``.
+    """
+    usuario_id = identificadores.get("usuario_id")
+
+    if not usuario_id:
+        return
+
+    valores = [
+        (
+            IdentificadorUsuarioAuditoria.Tipo.EMAIL,
+            identificadores.get("email"),
+        ),
+        (
+            IdentificadorUsuarioAuditoria.Tipo.CPF,
+            identificadores.get("cpf"),
+        ),
+        (
+            IdentificadorUsuarioAuditoria.Tipo.RF,
+            identificadores.get("rf"),
+        ),
+    ]
+
+    objetos = []
+
+    for tipo, valor in valores:
+        valor_normalizado = _normalizar_valor_identificador(
+            tipo,
+            valor,
+        )
+
+        if not valor_normalizado:
+            continue
+
+        objetos.append(
+            IdentificadorUsuarioAuditoria(
+                realm=realm,
+                usuario_id=usuario_id,
+                tipo=tipo,
+                valor=valor_normalizado,
+            )
+        )
+
+    if not objetos:
+        return
+
+    IdentificadorUsuarioAuditoria.objects.bulk_create(
+        objetos,
+        ignore_conflicts=True,
+    )
+
+
+def _resolver_identificador_usuario(
+    identificador: str,
+) -> list[tuple[str, str]]:
+    """Resolve e-mail, CPF ou RF para realm e usuario_id.
+
+    A consulta considera todo o histórico armazenado. Dessa forma,
+    um e-mail, CPF ou RF antigo continua levando ao mesmo usuário e,
+    consequentemente, aos eventos associados ao seu ``usuario_id``.
+
+    Args:
+        identificador: E-mail, CPF ou RF informado na consulta.
+
+    Returns:
+        Lista de pares ``(realm, usuario_id)`` associados ao valor.
+    """
+    valor = identificador.strip()
+
+    if not valor:
+        return []
+
+    email = _normalizar_valor_identificador(
+        IdentificadorUsuarioAuditoria.Tipo.EMAIL,
+        valor,
+    )
+
+    cpf = _normalizar_valor_identificador(
+        IdentificadorUsuarioAuditoria.Tipo.CPF,
+        valor,
+    )
+
+    rf = _normalizar_valor_identificador(
+        IdentificadorUsuarioAuditoria.Tipo.RF,
+        valor,
+    )
+
+    filtro = Q()
+
+    if email:
+        filtro |= Q(
+            tipo=IdentificadorUsuarioAuditoria.Tipo.EMAIL,
+            valor=email,
+        )
+
+    if cpf and len(cpf) == 11:
+        filtro |= Q(
+            tipo=IdentificadorUsuarioAuditoria.Tipo.CPF,
+            valor=cpf,
+        )
+
+    if rf:
+        filtro |= Q(
+            tipo=IdentificadorUsuarioAuditoria.Tipo.RF,
+            valor=rf,
+        )
+
+    return list(
+        IdentificadorUsuarioAuditoria.objects.filter(filtro)
+        .values_list(
+            "realm",
+            "usuario_id",
+        )
+        .distinct()
     )
 
 
@@ -108,14 +272,20 @@ def consultar_eventos(
 ) -> QuerySet[EventoAuditoria]:
     """Filtra os eventos de auditoria pelos critérios informados.
 
-    Cada combinação de filtro aplicada aqui casa com um dos índices
-    compostos do modelo (usuário, sistema ou tipo, sempre com
-    período): a apuração típica de auditoria é sempre "eventos de X,
-    num período", nunca uma consulta sem nenhum recorte por tempo
-    isolado.
+    ``usuario_id`` funciona como identificador genérico do usuário.
+    Pode receber:
+
+    - ID do usuário no Keycloak;
+    - e-mail atual ou histórico;
+    - CPF atual ou histórico;
+    - RF atual ou histórico.
+
+    Quando o valor corresponde a um identificador alternativo, ele é
+    resolvido para o ``usuario_id`` armazenado e todos os eventos
+    daquele usuário são retornados.
 
     Args:
-        usuario_id: Filtra pelo identificador do usuário no Keycloak.
+        usuario_id: ID do Keycloak, e-mail, CPF ou RF do usuário.
         client_id: Filtra pelo sistema de origem do evento.
         tipo_evento: Filtra pelo tipo de evento (``LOGIN``, ``LOGOUT``
             etc.).
@@ -129,7 +299,20 @@ def consultar_eventos(
     eventos = EventoAuditoria.objects.all()
 
     if usuario_id:
-        eventos = eventos.filter(usuario_id=usuario_id)
+        valor = usuario_id.strip()
+
+        filtro_usuario = Q(usuario_id=valor)
+
+        identificadores = _resolver_identificador_usuario(valor)
+
+        for realm, usuario_id_resolvido in identificadores:
+            filtro_usuario |= Q(
+                realm=realm,
+                usuario_id=usuario_id_resolvido,
+            )
+
+        eventos = eventos.filter(filtro_usuario)
+
     if client_id:
         eventos = eventos.filter(client_id=client_id)
     if tipo_evento:
