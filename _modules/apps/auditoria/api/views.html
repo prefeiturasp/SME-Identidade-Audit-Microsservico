@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apps.auditoria.api.views &mdash; SME-Identidade-Audit-Microsservico</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-Identidade-Audit-Microsservico
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../eventos.html">Captura de eventos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auditoria.html">Persistência de auditoria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">Referência de código</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-Identidade-Audit-Microsservico</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">apps.auditoria.api.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para apps.auditoria.api.views</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Views da API da aplicação auditoria."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuerySet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drf_spectacular.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenApiParameter</span><span class="p">,</span> <span class="n">extend_schema</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.generics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListAPIView</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.auditoria.api.paginacao</span><span class="w"> </span><span class="kn">import</span> <span class="n">PaginacaoEventoAuditoria</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.auditoria.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EventoAuditoriaFiltroSerializer</span><span class="p">,</span>
+    <span class="n">EventoAuditoriaSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.auditoria.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventoAuditoria</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.auditoria.servicos</span><span class="w"> </span><span class="kn">import</span> <span class="n">consultar_eventos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.autenticacao.api_key</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutenticacaoApiKey</span>
+
+<span class="n">_TAG</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Auditoria"</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="EventoAuditoriaListView">
+<a class="viewcode-back" href="../../../../api.html#apps.auditoria.api.views.EventoAuditoriaListView">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EventoAuditoriaListView</span><span class="p">(</span><span class="n">ListAPIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Consulta eventos de auditoria já persistidos, com filtros.</span>
+
+<span class="sd">    Não expõe escrita: a única forma de um evento chegar à base é via</span>
+<span class="sd">    captura a partir do Keycloak (``apps.eventos``), nunca por este</span>
+<span class="sd">    endpoint.</span>
+<span class="sd">    """</span>
+
+    <span class="n">authentication_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AutenticacaoApiKey</span><span class="p">]</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">EventoAuditoriaSerializer</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">PaginacaoEventoAuditoria</span>
+
+<div class="viewcode-block" id="EventoAuditoriaListView.get">
+<a class="viewcode-back" href="../../../../api.html#apps.auditoria.api.views.EventoAuditoriaListView.get">[documentos]</a>
+    <span class="nd">@extend_schema</span><span class="p">(</span>
+        <span class="n">tags</span><span class="o">=</span><span class="n">_TAG</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="s2">"Consultar eventos de auditoria"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"Lista eventos de auditoria já persistidos, filtráveis "</span>
+            <span class="s2">"por usuário, sistema, tipo de evento e período. "</span>
+            <span class="s2">"Paginado, 100 registros por página por padrão "</span>
+            <span class="s2">"(configurável via `page_size`, teto de 1000)."</span>
+        <span class="p">),</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">OpenApiParameter</span><span class="p">(</span>
+                <span class="s2">"usuario_id"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Identificador do usuário no Keycloak."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">OpenApiParameter</span><span class="p">(</span>
+                <span class="s2">"client_id"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Sistema de origem do evento."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">OpenApiParameter</span><span class="p">(</span>
+                <span class="s2">"tipo_evento"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Tipo do evento (LOGIN, LOGOUT etc.)."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">OpenApiParameter</span><span class="p">(</span>
+                <span class="s2">"data_inicio"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Data/hora mínima do evento (ISO 8601)."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">OpenApiParameter</span><span class="p">(</span>
+                <span class="s2">"data_fim"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Data/hora máxima do evento (ISO 8601)."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">OpenApiParameter</span><span class="p">(</span>
+                <span class="s2">"page_size"</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Registros por página (padrão 100, teto 1000)."</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">responses</span><span class="o">=</span><span class="n">EventoAuditoriaSerializer</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Delega a listagem paginada ao comportamento padrão do DRF.</span>
+
+<span class="sd">        Sobrescrito apenas para carregar o ``@extend_schema`` — sem um</span>
+<span class="sd">        método explícito, o drf-spectacular não documenta os</span>
+<span class="sd">        parâmetros de querystring de uma ``ListAPIView`` genérica.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EventoAuditoriaListView.get_queryset">
+<a class="viewcode-back" href="../../../../api.html#apps.auditoria.api.views.EventoAuditoriaListView.get_queryset">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">EventoAuditoria</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Monta o queryset filtrado a partir da querystring.</span>
+
+<span class="sd">        A validação por ``EventoAuditoriaFiltroSerializer`` garante</span>
+<span class="sd">        que ``data_inicio``/``data_fim`` cheguem a</span>
+<span class="sd">        ``consultar_eventos`` já convertidos para ``datetime`` — uma</span>
+<span class="sd">        data malformada na querystring vira ``400`` aqui, em vez de</span>
+<span class="sd">        um erro de banco mais adiante.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Eventos de auditoria filtrados pelos parâmetros</span>
+<span class="sd">            informados, do mais recente para o mais antigo.</span>
+<span class="sd">        """</span>
+        <span class="n">filtro</span> <span class="o">=</span> <span class="n">EventoAuditoriaFiltroSerializer</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span>
+        <span class="p">)</span>
+        <span class="n">filtro</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dados</span> <span class="o">=</span> <span class="n">filtro</span><span class="o">.</span><span class="n">validated_data</span>
+
+        <span class="k">return</span> <span class="n">consultar_eventos</span><span class="p">(</span>
+            <span class="n">usuario_id</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"usuario_id"</span><span class="p">),</span>
+            <span class="n">client_id</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"client_id"</span><span class="p">),</span>
+            <span class="n">tipo_evento</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tipo_evento"</span><span class="p">),</span>
+            <span class="n">data_inicio</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_inicio"</span><span class="p">),</span>
+            <span class="n">data_fim</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_fim"</span><span class="p">),</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais .</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

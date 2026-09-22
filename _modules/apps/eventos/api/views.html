@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apps.eventos.api.views &mdash; SME-Identidade-Audit-Microsservico</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-Identidade-Audit-Microsservico
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../eventos.html">Captura de eventos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auditoria.html">Persistência de auditoria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">Referência de código</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-Identidade-Audit-Microsservico</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">apps.eventos.api.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para apps.eventos.api.views</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Views da API da aplicação eventos."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">drf_spectacular.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenApiResponse</span><span class="p">,</span> <span class="n">extend_schema</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kombu.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OperationalError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.views</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIView</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.autenticacao.api_key</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutenticacaoApiKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.eventos.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GatilhoPollRequestSerializer</span><span class="p">,</span>
+    <span class="n">GatilhoPollResponseSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.eventos.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">task_auditoria_consultar_eventos</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_TAG</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Eventos"</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="GatilhoPollView">
+<a class="viewcode-back" href="../../../../api.html#apps.eventos.api.views.GatilhoPollView">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GatilhoPollView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Recebe o aviso de que houve atividade de um usuário.</span>
+
+<span class="sd">    Não recebe eventos de auditoria: o corpo aceito é apenas o realm e</span>
+<span class="sd">    o usuário, e o evento continua sendo lido do Keycloak. Aceitar um</span>
+<span class="sd">    evento pronto criaria uma segunda origem do mesmo dado, com</span>
+<span class="sd">    timestamp próprio, e a deduplicação passaria a depender de</span>
+<span class="sd">    reconciliar formatos divergentes.</span>
+
+<span class="sd">    Responde de imediato, sem esperar a consulta: quem avisa está no</span>
+<span class="sd">    meio de um fluxo que o usuário aguarda.</span>
+<span class="sd">    """</span>
+
+    <span class="n">authentication_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">AutenticacaoApiKey</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GatilhoPollView.post">
+<a class="viewcode-back" href="../../../../api.html#apps.eventos.api.views.GatilhoPollView.post">[documentos]</a>
+    <span class="nd">@extend_schema</span><span class="p">(</span>
+        <span class="n">tags</span><span class="o">=</span><span class="n">_TAG</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="s2">"Avisar atividade de usuário"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"Solicita a consulta antecipada dos eventos do realm no "</span>
+            <span class="s2">"Keycloak, sem esperar o próximo ciclo agendado. O corpo "</span>
+            <span class="s2">"carrega apenas o realm e o usuário — o evento em si é "</span>
+            <span class="s2">"sempre lido do Keycloak."</span>
+        <span class="p">),</span>
+        <span class="n">request</span><span class="o">=</span><span class="n">GatilhoPollRequestSerializer</span><span class="p">,</span>
+        <span class="n">responses</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">:</span> <span class="n">OpenApiResponse</span><span class="p">(</span>
+                <span class="n">response</span><span class="o">=</span><span class="n">GatilhoPollResponseSerializer</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Aviso aceito; consulta enfileirada."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">:</span> <span class="n">OpenApiResponse</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Aviso incompleto."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">HTTP_503_SERVICE_UNAVAILABLE</span><span class="p">:</span> <span class="n">OpenApiResponse</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">"Fila indisponível; consulta não enfileirada."</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Enfileira a consulta antecipada dos eventos do realm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request: Requisição HTTP com ``realm`` e ``usuario_id``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``202`` com a confirmação do enfileiramento; ``400`` se o</span>
+<span class="sd">            aviso vier incompleto; ``503`` se a fila estiver</span>
+<span class="sd">            indisponível — nesse caso o ciclo agendado ainda captura</span>
+<span class="sd">            a atividade depois.</span>
+<span class="sd">        """</span>
+        <span class="n">entrada</span> <span class="o">=</span> <span class="n">GatilhoPollRequestSerializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">entrada</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">realm</span> <span class="o">=</span> <span class="n">entrada</span><span class="o">.</span><span class="n">validated_data</span><span class="p">[</span><span class="s2">"realm"</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">task_auditoria_consultar_eventos</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">realm</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">OperationalError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Aviso do realm </span><span class="si">%s</span><span class="s2"> não enfileirado: fila indisponível"</span><span class="p">,</span>
+                <span class="n">realm</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">"erro"</span><span class="p">:</span> <span class="s2">"fila indisponível"</span><span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_503_SERVICE_UNAVAILABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">saida</span> <span class="o">=</span> <span class="n">GatilhoPollResponseSerializer</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">"situacao"</span><span class="p">:</span> <span class="s2">"consulta_enfileirada"</span><span class="p">,</span> <span class="s2">"realm"</span><span class="p">:</span> <span class="n">realm</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">saida</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais .</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

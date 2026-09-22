@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apps.eventos.normalizacao &mdash; SME-Identidade-Audit-Microsservico</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2346ddef"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/translations.js?v=71a39b36"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Buscar" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SME-Identidade-Audit-Microsservico
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../eventos.html">Captura de eventos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auditoria.html">Persistência de auditoria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Referência de código</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SME-Identidade-Audit-Microsservico</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código do módulo</a></li>
+      <li class="breadcrumb-item active">apps.eventos.normalizacao</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código-fonte para apps.eventos.normalizacao</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tradução do evento bruto do Keycloak para o formato de auditoria."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="c1"># Tamanho da chave de deduplicação em caracteres hexadecimais. O hash</span>
+<span class="c1"># completo de SHA-256 tem 64; truncar em 32 mantém a colisão fora de</span>
+<span class="c1"># qualquer ordem de grandeza plausível de eventos e ainda cabe no</span>
+<span class="c1"># campo indexado.</span>
+<span class="n">_TAMANHO_CHAVE</span> <span class="o">=</span> <span class="mi">32</span>
+
+
+<div class="viewcode-block" id="calcular_evento_id_origem">
+<a class="viewcode-back" href="../../../api.html#apps.eventos.normalizacao.calcular_evento_id_origem">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calcular_evento_id_origem</span><span class="p">(</span><span class="n">evento</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Deriva a chave de deduplicação do evento.</span>
+
+<span class="sd">    A Admin REST API não expõe um identificador único e estável do</span>
+<span class="sd">    evento de forma padronizada entre versões do Keycloak, então a</span>
+<span class="sd">    chave é derivada dos campos que, juntos, identificam a ocorrência:</span>
+<span class="sd">    realm, tipo, usuário, instante e sessão. Campos ausentes entram</span>
+<span class="sd">    como string vazia, para que o mesmo evento sempre produza a mesma</span>
+<span class="sd">    chave, independentemente de qual leitura o trouxe.</span>
+
+<span class="sd">    Assumido enquanto não há como inspecionar a resposta de um</span>
+<span class="sd">    Keycloak real: se a versão em uso expuser um identificador nativo</span>
+<span class="sd">    confiável, ele é preferível a este hash.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        evento: Evento bruto, no formato devolvido pelo Keycloak.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A chave de deduplicação, em hexadecimal.</span>
+<span class="sd">    """</span>
+    <span class="n">detalhes</span> <span class="o">=</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"details"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="n">componentes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"realmId"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"userId"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sessionId"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">detalhes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sessionId"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">bruto</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">componentes</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">bruto</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="n">_TAMANHO_CHAVE</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="normalizar_evento">
+<a class="viewcode-back" href="../../../api.html#apps.eventos.normalizacao.normalizar_evento">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalizar_evento</span><span class="p">(</span>
+    <span class="n">evento</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">realm_padrao</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Converta o evento bruto do Keycloak no formato de persistência.</span>
+
+<span class="sd">    O payload bruto é preservado por inteiro em ``detalhes``: os</span>
+<span class="sd">    campos promovidos a colunas atendem as consultas previstas, e o</span>
+<span class="sd">    que sobra pode ser justamente o que uma apuração futura precisa.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        evento: Evento bruto, no formato devolvido pelo Keycloak.</span>
+<span class="sd">        realm_padrao: Realm a assumir quando o evento não traz</span>
+<span class="sd">            ``realmId`` — algumas versões omitem o campo na resposta</span>
+<span class="sd">            da Admin API, já que a consulta é feita por realm.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        O evento normalizado, com a chave de deduplicação calculada.</span>
+<span class="sd">    """</span>
+    <span class="n">realm</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"realmId"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">realm_padrao</span><span class="p">)</span>
+
+    <span class="c1"># A chave é sempre derivada do payload de origem, com o realm já</span>
+    <span class="c1"># resolvido — assim, duas leituras do mesmo evento coincidem</span>
+    <span class="c1"># mesmo quando uma delas veio sem o campo preenchido.</span>
+    <span class="n">evento_para_chave</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">evento</span><span class="p">,</span> <span class="s2">"realmId"</span><span class="p">:</span> <span class="n">realm</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"evento_id_origem"</span><span class="p">:</span> <span class="n">calcular_evento_id_origem</span><span class="p">(</span><span class="n">evento_para_chave</span><span class="p">),</span>
+        <span class="s2">"tipo_evento"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"usuario_id"</span><span class="p">:</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"userId"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"realm"</span><span class="p">:</span> <span class="n">realm</span><span class="p">,</span>
+        <span class="s2">"client_id"</span><span class="p">:</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clientId"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"ip_origem"</span><span class="p">:</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ipAddress"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"timestamp_evento"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">"detalhes"</span><span class="p">:</span> <span class="n">evento</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="calcular_admin_event_id_origem">
+<a class="viewcode-back" href="../../../api.html#apps.eventos.normalizacao.calcular_admin_event_id_origem">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calcular_admin_event_id_origem</span><span class="p">(</span><span class="n">evento</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Deriva a chave de deduplicação de um admin event.</span>
+
+<span class="sd">    O admin event real do Keycloak traz um ``id`` próprio — diferente</span>
+<span class="sd">    do canal de eventos de usuário, onde a ausência de identificador</span>
+<span class="sd">    nativo era a premissa (não confirmada) que levou ao hash composto.</span>
+<span class="sd">    Aqui, o ``id`` é usado diretamente quando presente; o hash fica</span>
+<span class="sd">    como retaguarda, composto por ``operationType``/``resourceType``/</span>
+<span class="sd">    ``resourcePath``/``time`` — os campos que juntos identificam a</span>
+<span class="sd">    operação administrativa.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        evento: Admin event bruto, no formato devolvido pelo Keycloak.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A chave de deduplicação, em hexadecimal.</span>
+<span class="sd">    """</span>
+    <span class="n">id_nativo</span> <span class="o">=</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">id_nativo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">id_nativo</span><span class="p">)</span>
+
+    <span class="n">componentes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"realmId"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"operationType"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resourceType"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resourcePath"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">bruto</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">componentes</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">bruto</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="n">_TAMANHO_CHAVE</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="normalizar_admin_event">
+<a class="viewcode-back" href="../../../api.html#apps.eventos.normalizacao.normalizar_admin_event">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalizar_admin_event</span><span class="p">(</span>
+    <span class="n">evento</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">realm_padrao</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Converta o admin event bruto do Keycloak no formato de persistência.</span>
+
+<span class="sd">    O formato de admin event não é compatível com o de evento de</span>
+<span class="sd">    usuário: não há ``type`` único, e sim ``operationType`` (o que foi</span>
+<span class="sd">    feito: ``CREATE``/``UPDATE``/``DELETE``/``ACTION``) combinado com</span>
+<span class="sd">    ``resourceType`` (o que foi afetado: ``USER``/``CLIENT``/``REALM``</span>
+<span class="sd">    etc.) — ``tipo_evento`` combina os dois para ficar consultável</span>
+<span class="sd">    junto dos tipos do outro canal, sem colidir com eles (``LOGIN`` de</span>
+<span class="sd">    usuário nunca é igual a ``ADMIN_USER_CREATE``).</span>
+
+<span class="sd">    O sujeito do evento também é diferente: em evento de usuário,</span>
+<span class="sd">    ``userId`` é quem protagonizou a ação (quem logou); aqui, o</span>
+<span class="sd">    usuário afetado pela operação (ex. o usuário criado) não aparece</span>
+<span class="sd">    como um campo direto — só quem *executou* a ação</span>
+<span class="sd">    (``authDetails.userId``). ``usuario_id`` aqui registra quem</span>
+<span class="sd">    executou, não quem foi afetado; ``detalhes.representation`` traz o</span>
+<span class="sd">    payload da operação para quem precisar identificar o usuário</span>
+<span class="sd">    afetado.</span>
+
+<span class="sd">    ``representation`` chega como string JSON serializada, não objeto</span>
+<span class="sd">    aninhado — decodificada aqui para não obrigar quem consulta</span>
+<span class="sd">    ``detalhes`` a fazer um segundo parse.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        evento: Admin event bruto, no formato devolvido pelo Keycloak.</span>
+<span class="sd">        realm_padrao: Realm a assumir quando o evento não traz</span>
+<span class="sd">            ``realmId``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        O evento normalizado, com a chave de deduplicação calculada.</span>
+<span class="sd">    """</span>
+    <span class="n">realm</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"realmId"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">realm_padrao</span><span class="p">)</span>
+    <span class="n">evento_para_chave</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">evento</span><span class="p">,</span> <span class="s2">"realmId"</span><span class="p">:</span> <span class="n">realm</span><span class="p">}</span>
+
+    <span class="n">auth_details</span> <span class="o">=</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"authDetails"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">operacao</span> <span class="o">=</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"operationType"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span>
+    <span class="n">recurso</span> <span class="o">=</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resourceType"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span>
+    <span class="n">tipo_evento</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"ADMIN_</span><span class="si">{</span><span class="n">recurso</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">operacao</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"ADMIN_EVENT"</span>
+
+    <span class="n">representacao</span> <span class="o">=</span> <span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"representation"</span><span class="p">)</span>
+    <span class="n">detalhes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">evento</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">representacao</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">representacao</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">detalhes</span><span class="p">[</span><span class="s2">"representation"</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">representacao</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"evento_id_origem"</span><span class="p">:</span> <span class="n">calcular_admin_event_id_origem</span><span class="p">(</span><span class="n">evento_para_chave</span><span class="p">),</span>
+        <span class="s2">"tipo_evento"</span><span class="p">:</span> <span class="n">tipo_evento</span><span class="p">,</span>
+        <span class="s2">"usuario_id"</span><span class="p">:</span> <span class="n">auth_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"userId"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"realm"</span><span class="p">:</span> <span class="n">realm</span><span class="p">,</span>
+        <span class="s2">"client_id"</span><span class="p">:</span> <span class="n">auth_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clientId"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"ip_origem"</span><span class="p">:</span> <span class="n">auth_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ipAddress"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"timestamp_evento"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">evento</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">"detalhes"</span><span class="p">:</span> <span class="n">detalhes</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais .</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

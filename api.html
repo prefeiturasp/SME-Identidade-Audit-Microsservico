@@ -1,0 +1,1177 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="pt-BR" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Referência de código &mdash; SME-Identidade-Audit-Microsservico</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2346ddef"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=71a39b36"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Buscar" href="search.html" />
+    <link rel="prev" title="Persistência de auditoria" href="auditoria.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME-Identidade-Audit-Microsservico
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu de navegação">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="eventos.html">Captura de eventos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auditoria.html">Persistência de auditoria</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Referência de código</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-apps.core.api.views">Core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#apps.core.api.views.HealthCheckView"><code class="docutils literal notranslate"><span class="pre">HealthCheckView</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.core.api.views.HealthCheckView.authentication_classes"><code class="docutils literal notranslate"><span class="pre">HealthCheckView.authentication_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.core.api.views.HealthCheckView.permission_classes"><code class="docutils literal notranslate"><span class="pre">HealthCheckView.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.core.api.views.HealthCheckView.get"><code class="docutils literal notranslate"><span class="pre">HealthCheckView.get()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.core.api.serializers.HealthStatusSerializer"><code class="docutils literal notranslate"><span class="pre">HealthStatusSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.core.api.serializers.HealthStatusSerializer.status"><code class="docutils literal notranslate"><span class="pre">HealthStatusSerializer.status</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-apps.autenticacao.api_key">Autenticação</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#apps.autenticacao.api_key.AutenticacaoApiKey"><code class="docutils literal notranslate"><span class="pre">AutenticacaoApiKey</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.autenticacao.api_key.AutenticacaoApiKey.authenticate"><code class="docutils literal notranslate"><span class="pre">AutenticacaoApiKey.authenticate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.autenticacao.api_key.AutenticacaoApiKey.authenticate_header"><code class="docutils literal notranslate"><span class="pre">AutenticacaoApiKey.authenticate_header()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-apps.eventos.api.views">Eventos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.api.views.GatilhoPollView"><code class="docutils literal notranslate"><span class="pre">GatilhoPollView</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.eventos.api.views.GatilhoPollView.authentication_classes"><code class="docutils literal notranslate"><span class="pre">GatilhoPollView.authentication_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.eventos.api.views.GatilhoPollView.post"><code class="docutils literal notranslate"><span class="pre">GatilhoPollView.post()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.api.serializers.GatilhoPollRequestSerializer"><code class="docutils literal notranslate"><span class="pre">GatilhoPollRequestSerializer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.api.serializers.GatilhoPollResponseSerializer"><code class="docutils literal notranslate"><span class="pre">GatilhoPollResponseSerializer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.KeycloakAdminError"><code class="docutils literal notranslate"><span class="pre">KeycloakAdminError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.obter_token_acesso"><code class="docutils literal notranslate"><span class="pre">obter_token_acesso()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.consultar_eventos"><code class="docutils literal notranslate"><span class="pre">consultar_eventos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.consultar_admin_events"><code class="docutils literal notranslate"><span class="pre">consultar_admin_events()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.normalizacao.calcular_evento_id_origem"><code class="docutils literal notranslate"><span class="pre">calcular_evento_id_origem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.normalizacao.normalizar_evento"><code class="docutils literal notranslate"><span class="pre">normalizar_evento()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.normalizacao.calcular_admin_event_id_origem"><code class="docutils literal notranslate"><span class="pre">calcular_admin_event_id_origem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.normalizacao.normalizar_admin_event"><code class="docutils literal notranslate"><span class="pre">normalizar_admin_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.servicos.obter_checkpoint"><code class="docutils literal notranslate"><span class="pre">obter_checkpoint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.servicos.capturar_eventos"><code class="docutils literal notranslate"><span class="pre">capturar_eventos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.eventos.servicos.capturar_admin_events"><code class="docutils literal notranslate"><span class="pre">capturar_admin_events()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-apps.auditoria.models">Auditoria</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.id"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.evento_id_origem"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.evento_id_origem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.tipo_evento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.tipo_evento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.usuario_id"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.usuario_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.realm"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.realm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.client_id"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.client_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.ip_origem"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.ip_origem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.timestamp_evento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.timestamp_evento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.timestamp_recebimento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.timestamp_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.detalhes"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.detalhes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.get_next_by_timestamp_evento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.get_next_by_timestamp_evento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.get_next_by_timestamp_recebimento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.get_next_by_timestamp_recebimento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.get_previous_by_timestamp_evento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.get_previous_by_timestamp_evento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.get_previous_by_timestamp_recebimento"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.get_previous_by_timestamp_recebimento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.EventoAuditoria.objects"><code class="docutils literal notranslate"><span class="pre">EventoAuditoria.objects</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.CANAL_USUARIO"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.CANAL_USUARIO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.CANAL_ADMIN"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.CANAL_ADMIN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.realm"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.realm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.canal"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.canal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.ultimo_timestamp"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.ultimo_timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.atualizado_em"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.atualizado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.get_next_by_atualizado_em"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.get_next_by_atualizado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.get_previous_by_atualizado_em"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.get_previous_by_atualizado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.id"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.models.CheckpointCaptura.objects"><code class="docutils literal notranslate"><span class="pre">CheckpointCaptura.objects</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.servicos.persistir_lote"><code class="docutils literal notranslate"><span class="pre">persistir_lote()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.servicos.consultar_eventos"><code class="docutils literal notranslate"><span class="pre">consultar_eventos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.servicos.expurgar_eventos_antigos"><code class="docutils literal notranslate"><span class="pre">expurgar_eventos_antigos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.api.views.EventoAuditoriaListView"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaListView</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.views.EventoAuditoriaListView.authentication_classes"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaListView.authentication_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.views.EventoAuditoriaListView.serializer_class"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaListView.serializer_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.views.EventoAuditoriaListView.pagination_class"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaListView.pagination_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.views.EventoAuditoriaListView.get"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaListView.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.views.EventoAuditoriaListView.get_queryset"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaListView.get_queryset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaSerializer.Meta</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.api.serializers.EventoAuditoriaFiltroSerializer"><code class="docutils literal notranslate"><span class="pre">EventoAuditoriaFiltroSerializer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria"><code class="docutils literal notranslate"><span class="pre">PaginacaoEventoAuditoria</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.page_size"><code class="docutils literal notranslate"><span class="pre">PaginacaoEventoAuditoria.page_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.page_size_query_param"><code class="docutils literal notranslate"><span class="pre">PaginacaoEventoAuditoria.page_size_query_param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.max_page_size"><code class="docutils literal notranslate"><span class="pre">PaginacaoEventoAuditoria.max_page_size</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu de navegação móvel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME-Identidade-Audit-Microsservico</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Navegação da página">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Referência de código</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> Ver código-fonte da página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="referencia-de-codigo">
+<h1>Referência de código<a class="headerlink" href="#referencia-de-codigo" title="Link para este cabeçalho"></a></h1>
+<p>Esta página publica as docstrings dos principais módulos do projeto. Detalhes
+de endpoints, status HTTP e contratos externos devem permanecer no OpenAPI ou
+em páginas técnicas específicas.</p>
+<section id="module-apps.core.api.views">
+<span id="core"></span><h2>Core<a class="headerlink" href="#module-apps.core.api.views" title="Link para este cabeçalho"></a></h2>
+<p>Views da API da aplicação core.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.core.api.views.HealthCheckView">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.core.api.views.</span></span><span class="sig-name descname"><span class="pre">HealthCheckView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/core/api/views.html#HealthCheckView"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.core.api.views.HealthCheckView" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">APIView</span></code></p>
+<p>Disponibiliza o endpoint de verificação de saúde da aplicação.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.core.api.views.HealthCheckView.authentication_classes">
+<span class="sig-name descname"><span class="pre">authentication_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#apps.core.api.views.HealthCheckView.authentication_classes" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.core.api.views.HealthCheckView.permission_classes">
+<span class="sig-name descname"><span class="pre">permission_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'rest_framework.permissions.AllowAny'&gt;]</span></em><a class="headerlink" href="#apps.core.api.views.HealthCheckView.permission_classes" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.core.api.views.HealthCheckView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/core/api/views.html#HealthCheckView.get"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.core.api.views.HealthCheckView.get" title="Link para esta definição"></a></dt>
+<dd><p>Retorna o estado de saúde da aplicação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Requisição HTTP recebida.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta HTTP contendo o status da aplicação.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Response</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-apps.core.api.serializers">Serializers base para todos os apps do core.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.core.api.serializers.HealthStatusSerializer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.core.api.serializers.</span></span><span class="sig-name descname"><span class="pre">HealthStatusSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/core/api/serializers.html#HealthStatusSerializer"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.core.api.serializers.HealthStatusSerializer" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Serializer</span></code></p>
+<p>Serializa o resultado da verificação de saúde da aplicação.</p>
+<p>Este serializer é utilizado pelo endpoint de health check para
+informar o estado atual da aplicação e de suas dependências.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.core.api.serializers.HealthStatusSerializer.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#apps.core.api.serializers.HealthStatusSerializer.status" title="Link para esta definição"></a></dt>
+<dd><p>Estado geral da aplicação. Pode assumir os valores
+<code class="docutils literal notranslate"><span class="pre">healthy</span></code>, <code class="docutils literal notranslate"><span class="pre">degraded</span></code> ou <code class="docutils literal notranslate"><span class="pre">unhealthy</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-apps.core.api.urls">Configuração de rotas da API da aplicação core.</p>
+</section>
+<section id="module-apps.autenticacao.api_key">
+<span id="autenticacao"></span><h2>Autenticação<a class="headerlink" href="#module-apps.autenticacao.api_key" title="Link para este cabeçalho"></a></h2>
+<p>Autenticação por API Key para os endpoints da auditoria.</p>
+<p>Autenticação simples de serviço a serviço: uma chave fixa, comparada
+por igualdade, enviada num header configurável — sem sessão, sem
+token com expiração, sem usuário real por trás da requisição.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.autenticacao.api_key.AutenticacaoApiKey">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.autenticacao.api_key.</span></span><span class="sig-name descname"><span class="pre">AutenticacaoApiKey</span></span><a class="reference internal" href="_modules/apps/autenticacao/api_key.html#AutenticacaoApiKey"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.autenticacao.api_key.AutenticacaoApiKey" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAuthentication</span></code></p>
+<p>Autentica requisições via API Key no header configurado.</p>
+<p>A chave é comparada com <code class="docutils literal notranslate"><span class="pre">settings.API_KEY</span></code>.
+O header utilizado é definido por <code class="docutils literal notranslate"><span class="pre">settings.API_KEY_HEADER</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.autenticacao.api_key.AutenticacaoApiKey.authenticate">
+<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/autenticacao/api_key.html#AutenticacaoApiKey.authenticate"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.autenticacao.api_key.AutenticacaoApiKey.authenticate" title="Link para esta definição"></a></dt>
+<dd><p>Valida o API Key presente no header da requisição.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Requisição HTTP recebida.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tupla (usuário, None) se autenticado, None se header ausente.</p>
+</dd>
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>AuthenticationFailed</strong> – Se o API Key for inválido.</p>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>request</strong> (<em>Request</em>)</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>_UsuarioApiKey</em>, None] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.autenticacao.api_key.AutenticacaoApiKey.authenticate_header">
+<span class="sig-name descname"><span class="pre">authenticate_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/autenticacao/api_key.html#AutenticacaoApiKey.authenticate_header"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.autenticacao.api_key.AutenticacaoApiKey.authenticate_header" title="Link para esta definição"></a></dt>
+<dd><p>Retorna o nome do header de autenticação esperado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-apps.eventos.api.views">
+<span id="eventos"></span><h2>Eventos<a class="headerlink" href="#module-apps.eventos.api.views" title="Link para este cabeçalho"></a></h2>
+<p>Views da API da aplicação eventos.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.eventos.api.views.GatilhoPollView">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.eventos.api.views.</span></span><span class="sig-name descname"><span class="pre">GatilhoPollView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/api/views.html#GatilhoPollView"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.api.views.GatilhoPollView" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">APIView</span></code></p>
+<p>Recebe o aviso de que houve atividade de um usuário.</p>
+<p>Não recebe eventos de auditoria: o corpo aceito é apenas o realm e
+o usuário, e o evento continua sendo lido do Keycloak. Aceitar um
+evento pronto criaria uma segunda origem do mesmo dado, com
+timestamp próprio, e a deduplicação passaria a depender de
+reconciliar formatos divergentes.</p>
+<p>Responde de imediato, sem esperar a consulta: quem avisa está no
+meio de um fluxo que o usuário aguarda.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.eventos.api.views.GatilhoPollView.authentication_classes">
+<span class="sig-name descname"><span class="pre">authentication_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'apps.autenticacao.api_key.AutenticacaoApiKey'&gt;]</span></em><a class="headerlink" href="#apps.eventos.api.views.GatilhoPollView.authentication_classes" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.eventos.api.views.GatilhoPollView.post">
+<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/api/views.html#GatilhoPollView.post"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.api.views.GatilhoPollView.post" title="Link para esta definição"></a></dt>
+<dd><p>Enfileira a consulta antecipada dos eventos do realm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Requisição HTTP com <code class="docutils literal notranslate"><span class="pre">realm</span></code> e <code class="docutils literal notranslate"><span class="pre">usuario_id</span></code>.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">202</span></code> com a confirmação do enfileiramento; <code class="docutils literal notranslate"><span class="pre">400</span></code> se o
+aviso vier incompleto; <code class="docutils literal notranslate"><span class="pre">503</span></code> se a fila estiver
+indisponível — nesse caso o ciclo agendado ainda captura
+a atividade depois.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Response</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-apps.eventos.api.serializers">Serializers de entrada e saída do aviso de atividade.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.eventos.api.serializers.GatilhoPollRequestSerializer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.eventos.api.serializers.</span></span><span class="sig-name descname"><span class="pre">GatilhoPollRequestSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/api/serializers.html#GatilhoPollRequestSerializer"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.api.serializers.GatilhoPollRequestSerializer" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Serializer</span></code></p>
+<p>Representa o aviso de que houve atividade de um usuário.</p>
+<p>Deliberadamente mínimo: o que chega aqui não é um evento de
+auditoria, é só um pedido para consultar o Keycloak antes do
+próximo ciclo agendado. O evento em si é sempre lido da origem,
+nunca aceito pronto de quem avisa.</p>
+<p>Os dois campos são exigidos preenchidos: a consulta antecipada é
+feita por realm, e o usuário é o que permite relacionar o aviso à
+atividade correspondente.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.eventos.api.serializers.GatilhoPollResponseSerializer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.eventos.api.serializers.</span></span><span class="sig-name descname"><span class="pre">GatilhoPollResponseSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/api/serializers.html#GatilhoPollResponseSerializer"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.api.serializers.GatilhoPollResponseSerializer" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Serializer</span></code></p>
+<p>Representa a confirmação de que o aviso foi aceito.</p>
+</dd></dl>
+
+<p id="module-apps.eventos.clientes.keycloak_admin">Cliente de leitura de eventos na Admin REST API do Keycloak.</p>
+<p>Isolado num módulo próprio para que a origem do dado tenha um único
+ponto de entrada: o restante da captura conversa com este contrato, e
+não com o formato de resposta do Keycloak.</p>
+<p>Dois canais independentes, cada um com endpoint, formato e flag de
+habilitação própria:</p>
+<ul class="simple">
+<li><p>Eventos de usuário (<code class="docutils literal notranslate"><span class="pre">consultar_eventos</span></code>) — login, logout, falha
+de login. Requer <code class="docutils literal notranslate"><span class="pre">eventsEnabled</span></code> no realm.</p></li>
+<li><p>Admin events (<code class="docutils literal notranslate"><span class="pre">consultar_admin_events</span></code>) — qualquer ação
+administrativa (criação/edição de usuário, client, role etc.).
+Requer <code class="docutils literal notranslate"><span class="pre">adminEventsEnabled</span></code> no realm; com
+<code class="docutils literal notranslate"><span class="pre">adminEventsDetailsEnabled</span></code> também ligado, o evento traz o
+payload da operação (<code class="docutils literal notranslate"><span class="pre">representation</span></code>).</p></li>
+</ul>
+<p>Em ambos, o realm desligado responde lista vazia, sem erro, e a
+captura fica em silêncio — validado contra Keycloak real (não é mais
+suposição de documentação). A credencial é de service account com
+permissão de leitura de eventos (role <code class="docutils literal notranslate"><span class="pre">view-events</span></code> do client
+<code class="docutils literal notranslate"><span class="pre">realm-management</span></code>), autenticada por client credentials.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="apps.eventos.clientes.keycloak_admin.KeycloakAdminError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.eventos.clientes.keycloak_admin.</span></span><span class="sig-name descname"><span class="pre">KeycloakAdminError</span></span><a class="reference internal" href="_modules/apps/eventos/clientes/keycloak_admin.html#KeycloakAdminError"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.clientes.keycloak_admin.KeycloakAdminError" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Falha ao consultar a Admin REST API do Keycloak.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.clientes.keycloak_admin.obter_token_acesso">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.clientes.keycloak_admin.</span></span><span class="sig-name descname"><span class="pre">obter_token_acesso</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/clientes/keycloak_admin.html#obter_token_acesso"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.clientes.keycloak_admin.obter_token_acesso" title="Link para esta definição"></a></dt>
+<dd><p>Autentica a service account e devolve o token de acesso.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Retorna<span class="colon">:</span></dt>
+<dd class="field-odd"><p>O <code class="docutils literal notranslate"><span class="pre">access_token</span></code> a usar nas chamadas à Admin API.</p>
+</dd>
+<dt class="field-even">Levanta<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.KeycloakAdminError" title="apps.eventos.clientes.keycloak_admin.KeycloakAdminError"><strong>KeycloakAdminError</strong></a> – Se a autenticação não for concluída.</p>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.clientes.keycloak_admin.consultar_eventos">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.clientes.keycloak_admin.</span></span><span class="sig-name descname"><span class="pre">consultar_eventos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desde_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/clientes/keycloak_admin.html#consultar_eventos"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.clientes.keycloak_admin.consultar_eventos" title="Link para esta definição"></a></dt>
+<dd><p>Lê os eventos do realm na Admin REST API.</p>
+<p>O recorte por <code class="docutils literal notranslate"><span class="pre">desde_ms</span></code> é aplicado aqui em dia inteiro, que é a
+granularidade aceita pelo parâmetro <code class="docutils literal notranslate"><span class="pre">dateFrom</span></code> da Admin API. O
+corte fino, no instante exato, fica a cargo de quem consome — a
+API não oferece filtro por milissegundo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realm</strong> – Realm do Keycloak a consultar.</p></li>
+<li><p><strong>desde_ms</strong> – Instante mínimo, em milissegundos, usado para
+derivar a data inicial da consulta.</p></li>
+<li><p><strong>limite</strong> – Máximo de eventos a trazer numa leitura.</p></li>
+<li><p><strong>tipos</strong> – Tipos de evento a considerar.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Os eventos brutos, no formato devolvido pelo Keycloak.</p>
+</dd>
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.KeycloakAdminError" title="apps.eventos.clientes.keycloak_admin.KeycloakAdminError"><strong>KeycloakAdminError</strong></a> – Se a consulta não for concluída.</p>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>realm</strong> (<em>str</em>)</p></li>
+<li><p><strong>desde_ms</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>limite</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tipos</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict[str, <em>Any</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.clientes.keycloak_admin.consultar_admin_events">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.clientes.keycloak_admin.</span></span><span class="sig-name descname"><span class="pre">consultar_admin_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desde_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/clientes/keycloak_admin.html#consultar_admin_events"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.clientes.keycloak_admin.consultar_admin_events" title="Link para esta definição"></a></dt>
+<dd><p>Lê os eventos administrativos do realm na Admin REST API.</p>
+<p>Canal separado do consultado por <code class="docutils literal notranslate"><span class="pre">consultar_eventos</span></code>: eventos de
+usuário (login/logout/falha) e admin events (qualquer ação
+administrativa — criação/edição de usuário, client, role etc.) têm
+endpoints, formato e configuração de habilitação (<code class="docutils literal notranslate"><span class="pre">eventsEnabled</span></code>
+vs. <code class="docutils literal notranslate"><span class="pre">adminEventsEnabled</span></code>) independentes no Keycloak. Criação de
+usuário, em particular, só aparece aqui — a plataforma cria contas
+via Admin API, não via auto-cadastro (que geraria <code class="docutils literal notranslate"><span class="pre">REGISTER</span></code> no
+canal de usuário).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realm</strong> – Realm do Keycloak a consultar.</p></li>
+<li><p><strong>desde_ms</strong> – Instante mínimo, em milissegundos, usado para
+derivar a data inicial da consulta.</p></li>
+<li><p><strong>limite</strong> – Máximo de eventos a trazer numa leitura.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Os admin events brutos, no formato devolvido pelo Keycloak
+(<code class="docutils literal notranslate"><span class="pre">operationType</span></code>, <code class="docutils literal notranslate"><span class="pre">resourceType</span></code>, <code class="docutils literal notranslate"><span class="pre">resourcePath</span></code>,
+<code class="docutils literal notranslate"><span class="pre">authDetails</span></code>, <code class="docutils literal notranslate"><span class="pre">representation</span></code> como string JSON).</p>
+</dd>
+<dt class="field-odd">Levanta<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#apps.eventos.clientes.keycloak_admin.KeycloakAdminError" title="apps.eventos.clientes.keycloak_admin.KeycloakAdminError"><strong>KeycloakAdminError</strong></a> – Se a consulta não for concluída.</p>
+</dd>
+<dt class="field-even">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>realm</strong> (<em>str</em>)</p></li>
+<li><p><strong>desde_ms</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>limite</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict[str, <em>Any</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-apps.eventos.normalizacao">Tradução do evento bruto do Keycloak para o formato de auditoria.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.normalizacao.calcular_evento_id_origem">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.normalizacao.</span></span><span class="sig-name descname"><span class="pre">calcular_evento_id_origem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evento</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/normalizacao.html#calcular_evento_id_origem"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.normalizacao.calcular_evento_id_origem" title="Link para esta definição"></a></dt>
+<dd><p>Deriva a chave de deduplicação do evento.</p>
+<p>A Admin REST API não expõe um identificador único e estável do
+evento de forma padronizada entre versões do Keycloak, então a
+chave é derivada dos campos que, juntos, identificam a ocorrência:
+realm, tipo, usuário, instante e sessão. Campos ausentes entram
+como string vazia, para que o mesmo evento sempre produza a mesma
+chave, independentemente de qual leitura o trouxe.</p>
+<p>Assumido enquanto não há como inspecionar a resposta de um
+Keycloak real: se a versão em uso expuser um identificador nativo
+confiável, ele é preferível a este hash.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>evento</strong> – Evento bruto, no formato devolvido pelo Keycloak.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>A chave de deduplicação, em hexadecimal.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>evento</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.normalizacao.normalizar_evento">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.normalizacao.</span></span><span class="sig-name descname"><span class="pre">normalizar_evento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realm_padrao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/normalizacao.html#normalizar_evento"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.normalizacao.normalizar_evento" title="Link para esta definição"></a></dt>
+<dd><p>Converta o evento bruto do Keycloak no formato de persistência.</p>
+<p>O payload bruto é preservado por inteiro em <code class="docutils literal notranslate"><span class="pre">detalhes</span></code>: os
+campos promovidos a colunas atendem as consultas previstas, e o
+que sobra pode ser justamente o que uma apuração futura precisa.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evento</strong> – Evento bruto, no formato devolvido pelo Keycloak.</p></li>
+<li><p><strong>realm_padrao</strong> – Realm a assumir quando o evento não traz
+<code class="docutils literal notranslate"><span class="pre">realmId</span></code> — algumas versões omitem o campo na resposta
+da Admin API, já que a consulta é feita por realm.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>O evento normalizado, com a chave de deduplicação calculada.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evento</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>realm_padrao</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.normalizacao.calcular_admin_event_id_origem">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.normalizacao.</span></span><span class="sig-name descname"><span class="pre">calcular_admin_event_id_origem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evento</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/normalizacao.html#calcular_admin_event_id_origem"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.normalizacao.calcular_admin_event_id_origem" title="Link para esta definição"></a></dt>
+<dd><p>Deriva a chave de deduplicação de um admin event.</p>
+<p>O admin event real do Keycloak traz um <code class="docutils literal notranslate"><span class="pre">id</span></code> próprio — diferente
+do canal de eventos de usuário, onde a ausência de identificador
+nativo era a premissa (não confirmada) que levou ao hash composto.
+Aqui, o <code class="docutils literal notranslate"><span class="pre">id</span></code> é usado diretamente quando presente; o hash fica
+como retaguarda, composto por <code class="docutils literal notranslate"><span class="pre">operationType</span></code>/<code class="docutils literal notranslate"><span class="pre">resourceType</span></code>/
+<code class="docutils literal notranslate"><span class="pre">resourcePath</span></code>/<code class="docutils literal notranslate"><span class="pre">time</span></code> — os campos que juntos identificam a
+operação administrativa.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>evento</strong> – Admin event bruto, no formato devolvido pelo Keycloak.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>A chave de deduplicação, em hexadecimal.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>evento</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.normalizacao.normalizar_admin_event">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.normalizacao.</span></span><span class="sig-name descname"><span class="pre">normalizar_admin_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realm_padrao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/normalizacao.html#normalizar_admin_event"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.normalizacao.normalizar_admin_event" title="Link para esta definição"></a></dt>
+<dd><p>Converta o admin event bruto do Keycloak no formato de persistência.</p>
+<p>O formato de admin event não é compatível com o de evento de
+usuário: não há <code class="docutils literal notranslate"><span class="pre">type</span></code> único, e sim <code class="docutils literal notranslate"><span class="pre">operationType</span></code> (o que foi
+feito: <code class="docutils literal notranslate"><span class="pre">CREATE</span></code>/<code class="docutils literal notranslate"><span class="pre">UPDATE</span></code>/<code class="docutils literal notranslate"><span class="pre">DELETE</span></code>/<code class="docutils literal notranslate"><span class="pre">ACTION</span></code>) combinado com
+<code class="docutils literal notranslate"><span class="pre">resourceType</span></code> (o que foi afetado: <code class="docutils literal notranslate"><span class="pre">USER</span></code>/<code class="docutils literal notranslate"><span class="pre">CLIENT</span></code>/<code class="docutils literal notranslate"><span class="pre">REALM</span></code>
+etc.) — <code class="docutils literal notranslate"><span class="pre">tipo_evento</span></code> combina os dois para ficar consultável
+junto dos tipos do outro canal, sem colidir com eles (<code class="docutils literal notranslate"><span class="pre">LOGIN</span></code> de
+usuário nunca é igual a <code class="docutils literal notranslate"><span class="pre">ADMIN_USER_CREATE</span></code>).</p>
+<p>O sujeito do evento também é diferente: em evento de usuário,
+<code class="docutils literal notranslate"><span class="pre">userId</span></code> é quem protagonizou a ação (quem logou); aqui, o
+usuário afetado pela operação (ex. o usuário criado) não aparece
+como um campo direto — só quem <em>executou</em> a ação
+(<code class="docutils literal notranslate"><span class="pre">authDetails.userId</span></code>). <code class="docutils literal notranslate"><span class="pre">usuario_id</span></code> aqui registra quem
+executou, não quem foi afetado; <code class="docutils literal notranslate"><span class="pre">detalhes.representation</span></code> traz o
+payload da operação para quem precisar identificar o usuário
+afetado.</p>
+<p><code class="docutils literal notranslate"><span class="pre">representation</span></code> chega como string JSON serializada, não objeto
+aninhado — decodificada aqui para não obrigar quem consulta
+<code class="docutils literal notranslate"><span class="pre">detalhes</span></code> a fazer um segundo parse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evento</strong> – Admin event bruto, no formato devolvido pelo Keycloak.</p></li>
+<li><p><strong>realm_padrao</strong> – Realm a assumir quando o evento não traz
+<code class="docutils literal notranslate"><span class="pre">realmId</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>O evento normalizado, com a chave de deduplicação calculada.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evento</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>realm_padrao</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-apps.eventos.servicos">Leitura dos eventos do Keycloak e avanço do marcador de captura.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.servicos.obter_checkpoint">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.servicos.</span></span><span class="sig-name descname"><span class="pre">obter_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'usuario'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/servicos.html#obter_checkpoint"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.servicos.obter_checkpoint" title="Link para esta definição"></a></dt>
+<dd><p>Devolve o instante até onde a captura do realm/canal já avançou.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realm</strong> – Realm do Keycloak.</p></li>
+<li><p><strong>canal</strong> – Qual dos dois fluxos de evento — usuário ou admin. Os
+timestamps dos dois canais são independentes, então cada
+um precisa do próprio marcador.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>O instante em milissegundos, ou zero se a combinação
+realm/canal ainda não foi capturada nenhuma vez.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realm</strong> (<em>str</em>)</p></li>
+<li><p><strong>canal</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.servicos.capturar_eventos">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.servicos.</span></span><span class="sig-name descname"><span class="pre">capturar_eventos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/servicos.html#capturar_eventos"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.servicos.capturar_eventos" title="Link para esta definição"></a></dt>
+<dd><p>Lê os eventos de usuário novos do realm (login/logout/falha).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>realm</strong> – Realm do Keycloak a capturar.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Quantos eventos foram lidos, quantos passaram do corte e qual
+marcador ficou registrado ao final.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>realm</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.eventos.servicos.capturar_admin_events">
+<span class="sig-prename descclassname"><span class="pre">apps.eventos.servicos.</span></span><span class="sig-name descname"><span class="pre">capturar_admin_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/eventos/servicos.html#capturar_admin_events"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.eventos.servicos.capturar_admin_events" title="Link para esta definição"></a></dt>
+<dd><p>Lê os admin events novos do realm (criação/edição de usuário etc.).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>realm</strong> – Realm do Keycloak a capturar.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Quantos eventos foram lidos, quantos passaram do corte e qual
+marcador ficou registrado ao final.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>realm</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-apps.eventos.tasks">Tarefas de captura de eventos no Keycloak.</p>
+</section>
+<section id="module-apps.auditoria.models">
+<span id="auditoria"></span><h2>Auditoria<a class="headerlink" href="#module-apps.auditoria.models" title="Link para este cabeçalho"></a></h2>
+<p>Modelos de persistência dos eventos de auditoria.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.auditoria.models.</span></span><span class="sig-name descname"><span class="pre">EventoAuditoria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/models.html#EventoAuditoria"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Registra um evento de auditoria lido do Keycloak.</p>
+<p><code class="docutils literal notranslate"><span class="pre">evento_id_origem</span></code> é a chave de deduplicação, e a restrição de
+unicidade sobre ela é o que garante, em definitivo, que o mesmo
+evento real nunca vire duas linhas. A leitura antecipada e o ciclo
+agendado podem se sobrepor — quando isso acontece, os dois
+processos chegam ao banco com a mesma chave e o segundo é
+rejeitado pela própria constraint, sem lock explícito nem consulta
+prévia por linha.</p>
+<p><code class="docutils literal notranslate"><span class="pre">detalhes</span></code> guarda o payload bruto completo, não só os campos
+normalizados: o que hoje parece irrelevante pode ser exatamente o
+que uma apuração futura precisa, e o dado descartado na escrita
+não tem como ser recuperado depois.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.id" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.evento_id_origem">
+<span class="sig-name descname"><span class="pre">evento_id_origem</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.evento_id_origem" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.tipo_evento">
+<span class="sig-name descname"><span class="pre">tipo_evento</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.tipo_evento" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.usuario_id">
+<span class="sig-name descname"><span class="pre">usuario_id</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.usuario_id" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.realm">
+<span class="sig-name descname"><span class="pre">realm</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.realm" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.client_id">
+<span class="sig-name descname"><span class="pre">client_id</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.client_id" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.ip_origem">
+<span class="sig-name descname"><span class="pre">ip_origem</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.ip_origem" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.timestamp_evento">
+<span class="sig-name descname"><span class="pre">timestamp_evento</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.timestamp_evento" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.timestamp_recebimento">
+<span class="sig-name descname"><span class="pre">timestamp_recebimento</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.timestamp_recebimento" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.detalhes">
+<span class="sig-name descname"><span class="pre">detalhes</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.detalhes" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.DoesNotExist" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.MultipleObjectsReturned" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.get_next_by_timestamp_evento">
+<span class="sig-name descname"><span class="pre">get_next_by_timestamp_evento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">timestamp_evento&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.get_next_by_timestamp_evento" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.get_next_by_timestamp_recebimento">
+<span class="sig-name descname"><span class="pre">get_next_by_timestamp_recebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">timestamp_recebimento&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.get_next_by_timestamp_recebimento" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.get_previous_by_timestamp_evento">
+<span class="sig-name descname"><span class="pre">get_previous_by_timestamp_evento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">timestamp_evento&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.get_previous_by_timestamp_evento" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.get_previous_by_timestamp_recebimento">
+<span class="sig-name descname"><span class="pre">get_previous_by_timestamp_recebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">timestamp_recebimento&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.get_previous_by_timestamp_recebimento" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.EventoAuditoria.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#apps.auditoria.models.EventoAuditoria.objects" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.auditoria.models.</span></span><span class="sig-name descname"><span class="pre">CheckpointCaptura</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/models.html#CheckpointCaptura"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Marca até onde a leitura de eventos de um realm já avançou.</p>
+<p>Guardado no banco, e não em memória do worker, porque precisa
+sobreviver a reinício de processo: um checkpoint perdido faria a
+leitura seguinte reprocessar uma janela inteira já capturada.</p>
+<p>O avanço só acontece depois que os eventos da leitura foram
+entregues para escrita — parar no meio deixa o marcador onde
+estava, e a leitura seguinte cobre a mesma janela de novo, sem
+perder evento.</p>
+<p><code class="docutils literal notranslate"><span class="pre">canal</span></code> distingue os dois fluxos de evento do Keycloak — eventos
+de usuário (login/logout/falha) e admin events (criação/edição de
+usuário e demais ações administrativas). Os dois têm timestamps
+e endpoints de consulta independentes; misturar os dois num único
+marcador por realm faria o avanço de um stream mascarar o avanço
+do outro.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.CANAL_USUARIO">
+<span class="sig-name descname"><span class="pre">CANAL_USUARIO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'usuario'</span></em><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.CANAL_USUARIO" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.CANAL_ADMIN">
+<span class="sig-name descname"><span class="pre">CANAL_ADMIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'admin'</span></em><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.CANAL_ADMIN" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.realm">
+<span class="sig-name descname"><span class="pre">realm</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.realm" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.canal">
+<span class="sig-name descname"><span class="pre">canal</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.canal" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.ultimo_timestamp">
+<span class="sig-name descname"><span class="pre">ultimo_timestamp</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.ultimo_timestamp" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.atualizado_em">
+<span class="sig-name descname"><span class="pre">atualizado_em</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.atualizado_em" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.DoesNotExist" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.MultipleObjectsReturned" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.get_next_by_atualizado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_atualizado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">atualizado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.get_next_by_atualizado_em" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.get_previous_by_atualizado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_atualizado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">atualizado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.get_previous_by_atualizado_em" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.id" title="Link para esta definição"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.models.CheckpointCaptura.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#apps.auditoria.models.CheckpointCaptura.objects" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-apps.auditoria.servicos">Regras de escrita, consulta e retenção dos eventos de auditoria.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.auditoria.servicos.persistir_lote">
+<span class="sig-prename descclassname"><span class="pre">apps.auditoria.servicos.</span></span><span class="sig-name descname"><span class="pre">persistir_lote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eventos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/servicos.html#persistir_lote"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.servicos.persistir_lote" title="Link para esta definição"></a></dt>
+<dd><p>Grava um lote de eventos, descartando os que já existem.</p>
+<p>A escrita é feita em lote, e não linha a linha, porque o volume
+esperado em pico de ano letivo torna o custo por INSERT
+individual proibitivo. Conflitos de chave são ignorados no próprio
+banco: quando a leitura antecipada e o ciclo agendado se
+sobrepõem, ambos trazem o mesmo evento, e é a restrição de
+unicidade que decide qual escrita vale — sem coordenação entre os
+processos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eventos</strong> – Eventos já normalizados, cada um com
+<code class="docutils literal notranslate"><span class="pre">evento_id_origem</span></code>.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Contagem de eventos recebidos e de linhas efetivamente
+criadas — a diferença entre as duas são as duplicatas
+descartadas.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eventos</strong> (<em>list</em><em>[</em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.auditoria.servicos.consultar_eventos">
+<span class="sig-prename descclassname"><span class="pre">apps.auditoria.servicos.</span></span><span class="sig-name descname"><span class="pre">consultar_eventos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usuario_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_evento</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_inicio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_fim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/servicos.html#consultar_eventos"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.servicos.consultar_eventos" title="Link para esta definição"></a></dt>
+<dd><p>Filtra os eventos de auditoria pelos critérios informados.</p>
+<p>Cada combinação de filtro aplicada aqui casa com um dos índices
+compostos do modelo (usuário, sistema ou tipo, sempre com
+período): a apuração típica de auditoria é sempre “eventos de X,
+num período”, nunca uma consulta sem nenhum recorte por tempo
+isolado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>usuario_id</strong> – Filtra pelo identificador do usuário no Keycloak.</p></li>
+<li><p><strong>client_id</strong> – Filtra pelo sistema de origem do evento.</p></li>
+<li><p><strong>tipo_evento</strong> – Filtra pelo tipo de evento (<code class="docutils literal notranslate"><span class="pre">LOGIN</span></code>, <code class="docutils literal notranslate"><span class="pre">LOGOUT</span></code>
+etc.).</p></li>
+<li><p><strong>data_inicio</strong> – Data/hora mínima do evento, inclusive.</p></li>
+<li><p><strong>data_fim</strong> – Data/hora máxima do evento, inclusive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Queryset ordenado do mais recente para o mais antigo, ainda
+não avaliado — a paginação é responsabilidade de quem chama.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>usuario_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>client_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tipo_evento</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>data_inicio</strong> (<em>datetime</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>data_fim</strong> (<em>datetime</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>QuerySet</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="apps.auditoria.servicos.expurgar_eventos_antigos">
+<span class="sig-prename descclassname"><span class="pre">apps.auditoria.servicos.</span></span><span class="sig-name descname"><span class="pre">expurgar_eventos_antigos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forcar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/servicos.html#expurgar_eventos_antigos"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.servicos.expurgar_eventos_antigos" title="Link para esta definição"></a></dt>
+<dd><p>Remove eventos fora do período de retenção configurado.</p>
+<p>Desligado por padrão: o período mínimo de guarda ainda depende de
+definição jurídica, e uma remoção feita antes dessa definição não
+tem como ser desfeita. <code class="docutils literal notranslate"><span class="pre">forcar</span></code> existe para exercitar a rotina
+em teste sem depender da configuração do ambiente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>forcar</strong> – Executa a remoção mesmo com a rotina desligada na
+configuração.</p>
+</dd>
+<dt class="field-even">Retorna<span class="colon">:</span></dt>
+<dd class="field-even"><p>Situação da execução (<code class="docutils literal notranslate"><span class="pre">executado</span></code> ou <code class="docutils literal notranslate"><span class="pre">desativado</span></code>), o
+corte de data aplicado e a quantidade de linhas removidas.</p>
+</dd>
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>forcar</strong> (<em>bool</em>)</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-apps.auditoria.tasks">Tarefas de escrita e de retenção dos eventos de auditoria.</p>
+<p id="module-apps.auditoria.api.views">Views da API da aplicação auditoria.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.api.views.EventoAuditoriaListView">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.auditoria.api.views.</span></span><span class="sig-name descname"><span class="pre">EventoAuditoriaListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/api/views.html#EventoAuditoriaListView"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.views.EventoAuditoriaListView" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">ListAPIView</span></code></p>
+<p>Consulta eventos de auditoria já persistidos, com filtros.</p>
+<p>Não expõe escrita: a única forma de um evento chegar à base é via
+captura a partir do Keycloak (<code class="docutils literal notranslate"><span class="pre">apps.eventos</span></code>), nunca por este
+endpoint.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.views.EventoAuditoriaListView.authentication_classes">
+<span class="sig-name descname"><span class="pre">authentication_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'apps.autenticacao.api_key.AutenticacaoApiKey'&gt;]</span></em><a class="headerlink" href="#apps.auditoria.api.views.EventoAuditoriaListView.authentication_classes" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.views.EventoAuditoriaListView.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#apps.auditoria.api.views.EventoAuditoriaListView.serializer_class" title="Link para esta definição"></a></dt>
+<dd><p>apelido de <a class="reference internal" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer" title="apps.auditoria.api.serializers.EventoAuditoriaSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventoAuditoriaSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.views.EventoAuditoriaListView.pagination_class">
+<span class="sig-name descname"><span class="pre">pagination_class</span></span><a class="headerlink" href="#apps.auditoria.api.views.EventoAuditoriaListView.pagination_class" title="Link para esta definição"></a></dt>
+<dd><p>apelido de <a class="reference internal" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria" title="apps.auditoria.api.paginacao.PaginacaoEventoAuditoria"><code class="xref py py-class docutils literal notranslate"><span class="pre">PaginacaoEventoAuditoria</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.api.views.EventoAuditoriaListView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/api/views.html#EventoAuditoriaListView.get"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.views.EventoAuditoriaListView.get" title="Link para esta definição"></a></dt>
+<dd><p>Delega a listagem paginada ao comportamento padrão do DRF.</p>
+<p>Sobrescrito apenas para carregar o <code class="docutils literal notranslate"><span class="pre">&#64;extend_schema</span></code> — sem um
+método explícito, o drf-spectacular não documenta os
+parâmetros de querystring de uma <code class="docutils literal notranslate"><span class="pre">ListAPIView</span></code> genérica.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parâmetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>)</p></li>
+<li><p><strong>args</strong> (<em>object</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>object</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Response</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apps.auditoria.api.views.EventoAuditoriaListView.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/api/views.html#EventoAuditoriaListView.get_queryset"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.views.EventoAuditoriaListView.get_queryset" title="Link para esta definição"></a></dt>
+<dd><p>Monta o queryset filtrado a partir da querystring.</p>
+<p>A validação por <code class="docutils literal notranslate"><span class="pre">EventoAuditoriaFiltroSerializer</span></code> garante
+que <code class="docutils literal notranslate"><span class="pre">data_inicio</span></code>/<code class="docutils literal notranslate"><span class="pre">data_fim</span></code> cheguem a
+<code class="docutils literal notranslate"><span class="pre">consultar_eventos</span></code> já convertidos para <code class="docutils literal notranslate"><span class="pre">datetime</span></code> — uma
+data malformada na querystring vira <code class="docutils literal notranslate"><span class="pre">400</span></code> aqui, em vez de
+um erro de banco mais adiante.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Retorna<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Eventos de auditoria filtrados pelos parâmetros
+informados, do mais recente para o mais antigo.</p>
+</dd>
+<dt class="field-even">Tipo de retorno<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>QuerySet</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-apps.auditoria.api.serializers">Serializers da API de consulta de eventos de auditoria.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.api.serializers.EventoAuditoriaSerializer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.auditoria.api.serializers.</span></span><span class="sig-name descname"><span class="pre">EventoAuditoriaSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/api/serializers.html#EventoAuditoriaSerializer"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Representa um evento de auditoria na resposta da consulta.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/apps/auditoria/api/serializers.html#EventoAuditoriaSerializer.Meta"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configurações de metadados do serializer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta.model" title="Link para esta definição"></a></dt>
+<dd><p>apelido de <a class="reference internal" href="#apps.auditoria.models.EventoAuditoria" title="apps.auditoria.models.EventoAuditoria"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventoAuditoria</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['id',</span> <span class="pre">'evento_id_origem',</span> <span class="pre">'tipo_evento',</span> <span class="pre">'usuario_id',</span> <span class="pre">'realm',</span> <span class="pre">'client_id',</span> <span class="pre">'ip_origem',</span> <span class="pre">'timestamp_evento',</span> <span class="pre">'timestamp_recebimento',</span> <span class="pre">'detalhes']</span></em><a class="headerlink" href="#apps.auditoria.api.serializers.EventoAuditoriaSerializer.Meta.fields" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.api.serializers.EventoAuditoriaFiltroSerializer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.auditoria.api.serializers.</span></span><span class="sig-name descname"><span class="pre">EventoAuditoriaFiltroSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/apps/auditoria/api/serializers.html#EventoAuditoriaFiltroSerializer"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.serializers.EventoAuditoriaFiltroSerializer" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">Serializer</span></code></p>
+<p>Valida os parâmetros de filtro da consulta de eventos.</p>
+<p>Existe só para validação e documentação OpenAPI — a querystring
+já chega validada à view antes de a consulta em si ser montada em
+<code class="docutils literal notranslate"><span class="pre">apps.auditoria.servicos.consultar_eventos</span></code>.</p>
+</dd></dl>
+
+<p id="module-apps.auditoria.api.paginacao">Paginação da consulta de eventos de auditoria.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="apps.auditoria.api.paginacao.PaginacaoEventoAuditoria">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apps.auditoria.api.paginacao.</span></span><span class="sig-name descname"><span class="pre">PaginacaoEventoAuditoria</span></span><a class="reference internal" href="_modules/apps/auditoria/api/paginacao.html#PaginacaoEventoAuditoria"><span class="viewcode-link"><span class="pre">[código-fonte]</span></span></a><a class="headerlink" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria" title="Link para esta definição"></a></dt>
+<dd><p>Base: <code class="xref py py-class docutils literal notranslate"><span class="pre">PageNumberPagination</span></code></p>
+<p>Pagina a listagem de eventos, 100 por página por padrão.</p>
+<p>O tamanho é configurável por requisição via <code class="docutils literal notranslate"><span class="pre">page_size</span></code>, com
+teto de 1000 — sem teto, uma consulta sem filtro de período
+devolveria a tabela inteira numa única página.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.page_size">
+<span class="sig-name descname"><span class="pre">page_size</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.page_size" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.page_size_query_param">
+<span class="sig-name descname"><span class="pre">page_size_query_param</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'page_size'</span></em><a class="headerlink" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.page_size_query_param" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.max_page_size">
+<span class="sig-name descname"><span class="pre">max_page_size</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#apps.auditoria.api.paginacao.PaginacaoEventoAuditoria.max_page_size" title="Link para esta definição"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Rodapé">
+        <a href="auditoria.html" class="btn btn-neutral float-left" title="Persistência de auditoria" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Direitos autorais .</p>
+  </div>
+
+  Compilado com <a href="https://www.sphinx-doc.org/">Sphinx</a> usando um
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    fornecido por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
