@@ -160,9 +160,19 @@ def normalizar_admin_event(
     evento_para_chave = {**evento, "realmId": realm}
 
     auth_details = evento.get("authDetails") or {}
+
     operacao = evento.get("operationType") or ""
     recurso = evento.get("resourceType") or ""
-    tipo_evento = f"ADMIN_{recurso}_{operacao}".strip("_") or "ADMIN_EVENT"
+    caminho = str(evento.get("resourcePath") or "").rstrip("/")
+
+    if (
+        recurso == "CLIENT"
+        and operacao == "ACTION"
+        and caminho.endswith("/client-secret")
+    ):
+        tipo_evento = "ADMIN_CLIENT_SECRET_ROTATE"
+    else:
+        tipo_evento = f"ADMIN_{recurso}_{operacao}".strip("_") or "ADMIN_EVENT"
 
     representacao = evento.get("representation")
     detalhes = dict(evento)
