@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 _TASK = "apps.eventos.api.views.task_auditoria_consultar_eventos"
+_TASK_ADMIN = "apps.eventos.api.views." "task_auditoria_consultar_admin_events"
 
 _USUARIO_ID = "5c29cc47-0000-0000-0000-000000000000"
 
@@ -136,4 +137,121 @@ class TestGatilhoPollView:
             )
 
         assert resposta.status_code == status.HTTP_202_ACCEPTED
+        task.delay.assert_called_once_with("COTIC")
+
+
+class TestGatilhoPollAdminView:
+    """Testes de ``GatilhoPollAdminView``."""
+
+    @pytest.fixture(autouse=True)
+    def _configura_api_key(self, settings: Any) -> None:
+        """Define API_KEY/API_KEY_HEADER para o escopo de cada teste."""
+        settings.API_KEY = "chave-secreta"
+        settings.API_KEY_HEADER = "X-API-Key"
+
+    def _enviar(
+        self,
+        dados: dict,
+        chave: str | None = "chave-secreta",
+    ) -> Any:
+        """Envia o aviso administrativo, com ou sem credencial."""
+        cliente = APIClient()
+
+        if chave:
+            cliente.credentials(HTTP_X_API_KEY=chave)
+
+        return cliente.post(
+            reverse("gatilho-poll-admin"),
+            data=dados,
+            format="json",
+        )
+
+    def test_aceita_aviso_valido_e_enfileira_consulta_admin(
+        self,
+    ) -> None:
+        """Deve aceitar o aviso e pedir a consulta dos Admin Events."""
+        with patch(_TASK_ADMIN) as task:
+            resposta = self._enviar({"realm": "COTIC"})
+
+        assert resposta.status_code == status.HTTP_202_ACCEPTED
+        assert resposta.json() == {
+            "situacao": "consulta_enfileirada",
+            "realm": "COTIC",
+        }
+        task.delay.assert_called_once_with("COTIC")
+
+    def test_rejeita_sem_api_key(self) -> None:
+        """Deve bloquear o aviso administrativo sem credencial."""
+        with patch(_TASK_ADMIN) as task:
+            resposta = self._enviar(
+                {"realm": "COTIC"},
+                chave=None,
+            )
+
+        assert resposta.status_code == status.HTTP_401_UNAUTHORIZED
+        task.delay.assert_not_called()
+
+    def test_rejeita_api_key_invalida(self) -> None:
+        """Deve bloquear o aviso administrativo com credencial errada."""
+        with patch(_TASK_ADMIN) as task:
+            resposta = self._enviar(
+                {"realm": "COTIC"},
+                chave="errada",
+            )
+
+        assert resposta.status_code == status.HTTP_401_UNAUTHORIZED
+        task.delay.assert_not_called()
+
+    def test_rejeita_aviso_sem_realm(self) -> None:
+        """Deve recusar o aviso administrativo sem realm."""
+        with patch(_TASK_ADMIN) as task:
+            resposta = self._enviar({})
+
+        assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+        task.delay.assert_not_called()
+
+    def test_rejeita_realm_em_branco(self) -> None:
+        """Deve recusar o realm presente mas vazio."""
+        with patch(_TASK_ADMIN) as task:
+            resposta = self._enviar({"realm": "   "})
+
+        assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+        task.delay.assert_not_called()
+
+    def test_responde_503_com_a_fila_indisponivel(self) -> None:
+        """Deve avisar quando a consulta admin não puder ser enfileirada."""
+        with patch(_TASK_ADMIN) as task:
+            task.delay.side_effect = OperationalError("keydb fora do ar")
+
+            resposta = self._enviar({"realm": "COTIC"})
+
+        assert resposta.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+        assert resposta.json() == {"erro": "fila indisponível"}
+        task.delay.assert_called_once_with("COTIC")
+
+    def test_nao_aceita_evento_admin_pronto(self) -> None:
+        """Deve ignorar dados de Admin Event enviados no aviso.
+
+        O endpoint é somente um gatilho. O evento administrativo deve
+        continuar sendo obtido diretamente do Keycloak.
+        """
+        with patch(_TASK_ADMIN) as task:
+            resposta = self._enviar(
+                {
+                    "realm": "COTIC",
+                    "operationType": "ACTION",
+                    "resourceType": "CLIENT",
+                    "resourcePath": ("clients/client-uuid/client-secret"),
+                    "representation": {
+                        "type": "secret",
+                        "value": "**********",
+                    },
+                }
+            )
+
+        assert resposta.status_code == status.HTTP_202_ACCEPTED
+        assert resposta.json() == {
+            "situacao": "consulta_enfileirada",
+            "realm": "COTIC",
+        }
         task.delay.assert_called_once_with("COTIC")

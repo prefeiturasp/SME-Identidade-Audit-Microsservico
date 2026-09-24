@@ -11,10 +11,14 @@ from rest_framework.views import APIView
 
 from apps.autenticacao.api_key import AutenticacaoApiKey
 from apps.eventos.api.serializers import (
+    GatilhoPollAdminRequestSerializer,
     GatilhoPollRequestSerializer,
     GatilhoPollResponseSerializer,
 )
-from apps.eventos.tasks import task_auditoria_consultar_eventos
+from apps.eventos.tasks import (
+    task_auditoria_consultar_admin_events,
+    task_auditoria_consultar_eventos,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -92,3 +96,61 @@ class GatilhoPollView(APIView):
             {"situacao": "consulta_enfileirada", "realm": realm}
         )
         return Response(saida.data, status=status.HTTP_202_ACCEPTED)
+
+
+class GatilhoPollAdminView(APIView):
+    """Solicita a consulta antecipada dos Admin Events do realm."""
+
+    authentication_classes = [AutenticacaoApiKey]
+
+    @extend_schema(
+        tags=_TAG,
+        summary="Avisar atividade administrativa",
+        description=(
+            "Solicita a consulta antecipada dos Admin Events do realm "
+            "no Keycloak, sem esperar o próximo ciclo agendado."
+        ),
+        request=GatilhoPollAdminRequestSerializer,
+        responses={
+            status.HTTP_202_ACCEPTED: OpenApiResponse(
+                response=GatilhoPollResponseSerializer,
+                description="Aviso aceito; consulta enfileirada.",
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                description="Aviso incompleto.",
+            ),
+            status.HTTP_503_SERVICE_UNAVAILABLE: OpenApiResponse(
+                description="Fila indisponível; consulta não enfileirada.",
+            ),
+        },
+    )
+    def post(self, request: Request) -> Response:
+        entrada = GatilhoPollAdminRequestSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+
+        realm = entrada.validated_data["realm"]
+
+        try:
+            task_auditoria_consultar_admin_events.delay(realm)
+        except OperationalError:
+            logger.warning(
+                "Aviso de Admin Events do realm %s não enfileirado: "
+                "fila indisponível",
+                realm,
+            )
+            return Response(
+                {"erro": "fila indisponível"},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        saida = GatilhoPollResponseSerializer(
+            {
+                "situacao": "consulta_enfileirada",
+                "realm": realm,
+            }
+        )
+
+        return Response(
+            saida.data,
+            status=status.HTTP_202_ACCEPTED,
+        )
