@@ -49,6 +49,32 @@ aceita evento pronto.
 
 ---
 
+## Aviso de atividade administrativa
+
+| Método | Endpoint               | Descrição                                                           |
+| ------ | ---------------------- | ------------------------------------------------------------------- |
+| `POST` | `/gatilho-poll-admin/` | Solicita a consulta antecipada dos eventos administrativos do realm |
+
+```json
+// POST /gatilho-poll-admin/
+{
+  "realm": "COTIC"
+}
+```
+
+| Status | Situação                                                      |
+| ------ | ------------------------------------------------------------- |
+| `202`  | Aviso aceito; consulta de eventos administrativos enfileirada |
+| `400`  | Aviso incompleto (falta `realm`)                              |
+| `401`  | API Key ausente ou inválida                                   |
+| `503`  | Fila indisponível; o ciclo agendado ainda captura depois      |
+
+Qualquer campo de evento administrativo enviado junto do aviso é ignorado — o endpoint não aceita evento pronto.
+
+A identificação do evento é realizada a partir dos `admin-events` retornados pelo Keycloak.
+
+---
+
 ## Leitura no Keycloak
 
 `task_auditoria_consultar_eventos` atende tanto o ciclo agendado quanto o
