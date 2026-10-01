@@ -160,9 +160,19 @@ def normalizar_admin_event(
     evento_para_chave = {**evento, "realmId": realm}
 
     auth_details = evento.get("authDetails") or {}
+
     operacao = evento.get("operationType") or ""
     recurso = evento.get("resourceType") or ""
-    tipo_evento = f"ADMIN_{recurso}_{operacao}".strip("_") or "ADMIN_EVENT"
+    caminho = str(evento.get("resourcePath") or "").rstrip("/")
+
+    if (
+        recurso == "CLIENT"
+        and operacao == "ACTION"
+        and caminho.endswith("/client-secret")
+    ):
+        tipo_evento = "ADMIN_CLIENT_SECRET_ROTATE"
+    else:
+        tipo_evento = f"ADMIN_{recurso}_{operacao}".strip("_") or "ADMIN_EVENT"
 
     representacao = evento.get("representation")
     detalhes = dict(evento)
@@ -179,4 +189,56 @@ def normalizar_admin_event(
         "ip_origem": auth_details.get("ipAddress") or None,
         "timestamp_evento": int(evento.get("time") or 0),
         "detalhes": detalhes,
+    }
+
+
+def _primeiro_atributo(
+    atributos: dict[str, Any],
+    nome: str,
+) -> str | None:
+    valores = atributos.get(nome)
+
+    if not isinstance(valores, list) or not valores:
+        return None
+
+    valor = valores[0]
+
+    if not isinstance(valor, str):
+        return None
+
+    return valor
+
+
+def _normalizar_email(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    return valor.strip().casefold()
+
+
+def _normalizar_cpf(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    return "".join(caractere for caractere in valor if caractere.isdigit())
+
+
+def _normalizar_rf(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    return valor.strip()
+
+
+def extrair_identificadores_usuario(
+    usuario: dict[str, Any],
+) -> dict[str, str | None]:
+    """Extrai os identificadores relevantes da resposta do Keycloak."""
+    atributos = usuario.get("attributes") or {}
+
+    return {
+        "usuario_id": usuario.get("id"),
+        "email": _normalizar_email(usuario.get("email")),
+        "cpf": _normalizar_cpf(_primeiro_atributo(atributos, "cpf")),
+        "rf": _normalizar_rf(_primeiro_atributo(atributos, "rf")),
     }

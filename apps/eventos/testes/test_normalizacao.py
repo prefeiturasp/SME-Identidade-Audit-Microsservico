@@ -6,6 +6,7 @@ from typing import Any
 from apps.eventos.normalizacao import (
     calcular_admin_event_id_origem,
     calcular_evento_id_origem,
+    extrair_identificadores_usuario,
     normalizar_admin_event,
     normalizar_evento,
 )
@@ -345,3 +346,119 @@ class TestNormalizarAdminEvent:
 
         assert normalizado["detalhes"]["operationType"] == "CREATE"
         assert normalizado["detalhes"]["resourceType"] == "USER"
+
+    def test_identifica_rotacao_de_client_secret(self) -> None:
+        """Deve identificar a rotação de secret de um client."""
+        bruto = _admin_bruto(
+            operationType="ACTION",
+            resourceType="CLIENT",
+            resourcePath="clients/client-uuid/client-secret",
+            representation={
+                "type": "secret",
+                "value": "**********",
+            },
+        )
+
+        normalizado = normalizar_admin_event(
+            bruto,
+            realm_padrao="COTIC",
+        )
+
+        assert normalizado["tipo_evento"] == ("ADMIN_CLIENT_SECRET_ROTATE")
+
+    def test_mantem_outra_acao_de_client_com_tipo_generico(
+        self,
+    ) -> None:
+        """Deve especializar somente a ação de rotação do secret."""
+        bruto = _admin_bruto(
+            operationType="ACTION",
+            resourceType="CLIENT",
+            resourcePath="clients/client-uuid/push-revocation",
+        )
+
+        normalizado = normalizar_admin_event(
+            bruto,
+            realm_padrao="COTIC",
+        )
+
+        assert normalizado["tipo_evento"] == "ADMIN_CLIENT_ACTION"
+
+
+class TestExtrairIdentificadoresUsuario:
+    """Testes de extração dos identificadores do usuário."""
+
+    def test_extrai_e_normaliza_identificadores(self) -> None:
+        """Deve extrair e normalizar e-mail, CPF e RF."""
+        usuario = {
+            "id": "5c29cc47",
+            "email": " Teste.Usuario@TESTE.COM ",
+            "attributes": {
+                "cpf": ["123.456.789-01"],
+                "rf": [" 1234567 "],
+            },
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores == {
+            "usuario_id": "5c29cc47",
+            "email": "teste.usuario@teste.com",
+            "cpf": "12345678901",
+            "rf": "1234567",
+        }
+
+    def test_retorna_none_quando_identificadores_ausentes(
+        self,
+    ) -> None:
+        """Deve aceitar usuário sem e-mail, CPF ou RF."""
+        usuario = {
+            "id": "5c29cc47",
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores == {
+            "usuario_id": "5c29cc47",
+            "email": None,
+            "cpf": None,
+            "rf": None,
+        }
+
+    def test_ignora_atributos_em_formato_invalido(
+        self,
+    ) -> None:
+        """Deve ignorar atributos fora do formato esperado."""
+        usuario = {
+            "id": "5c29cc47",
+            "email": "",
+            "attributes": {
+                "cpf": [12345678901],
+                "rf": "1234567",
+            },
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores == {
+            "usuario_id": "5c29cc47",
+            "email": None,
+            "cpf": None,
+            "rf": None,
+        }
+
+    def test_ignora_listas_de_atributos_vazias(
+        self,
+    ) -> None:
+        """Deve tratar listas vazias como atributos ausentes."""
+        usuario = {
+            "id": "5c29cc47",
+            "attributes": {
+                "cpf": [],
+                "rf": [],
+            },
+        }
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        assert identificadores["cpf"] is None
+        assert identificadores["rf"] is None

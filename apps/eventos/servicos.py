@@ -10,9 +10,14 @@ from django.conf import settings
 from django.db import transaction
 
 from apps.auditoria.models import CheckpointCaptura
+from apps.auditoria.servicos import registrar_identificadores_usuario
 from apps.auditoria.tasks import task_auditoria_persistir_lote
 from apps.eventos.clientes import keycloak_admin
-from apps.eventos.normalizacao import normalizar_admin_event, normalizar_evento
+from apps.eventos.normalizacao import (
+    extrair_identificadores_usuario,
+    normalizar_admin_event,
+    normalizar_evento,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +66,58 @@ def _avancar_checkpoint(
             canal=canal,
             defaults={"ultimo_timestamp": timestamp_ms},
         )
+
         if timestamp_ms > checkpoint.ultimo_timestamp:
             checkpoint.ultimo_timestamp = timestamp_ms
             checkpoint.save(update_fields=["ultimo_timestamp"])
+
+
+def _registrar_identificadores_dos_usuarios(
+    realm: str,
+    eventos: list[dict[str, Any]],
+) -> None:
+    """Consulta e registra identificadores dos usuários do lote.
+
+    O ``realm`` recebido é o nome lógico utilizado para consultar a
+    Admin REST API do Keycloak, por exemplo ``COTIC``.
+
+    Já o ``realm`` presente nos eventos normalizados corresponde ao
+    valor atualmente persistido em ``EventoAuditoria`` — normalmente
+    o ``realmId`` retornado pelo Keycloak. Esse mesmo valor é usado em
+    ``IdentificadorUsuarioAuditoria`` para manter os dois modelos
+    consistentes.
+
+    Cada combinação de usuário e realm é consultada uma única vez no
+    lote, mesmo que o usuário possua vários eventos.
+
+    Args:
+        realm: Nome lógico do realm usado na Admin REST API.
+        eventos: Eventos de usuário já normalizados.
+    """
+    usuarios = {
+        (
+            evento["usuario_id"],
+            evento["realm"],
+        )
+        for evento in eventos
+        if evento.get("usuario_id") and evento.get("realm")
+    }
+
+    for usuario_id, realm_id in usuarios:
+        usuario = keycloak_admin.consultar_usuario(
+            realm=realm,
+            usuario_id=usuario_id,
+        )
+
+        if not usuario:
+            continue
+
+        identificadores = extrair_identificadores_usuario(usuario)
+
+        registrar_identificadores_usuario(
+            realm=realm_id,
+            identificadores=identificadores,
+        )
 
 
 def _capturar(
@@ -84,6 +138,12 @@ def _capturar(
     incluí-lo de novo geraria trabalho garantido de duplicata a cada
     ciclo. Como a Admin API só filtra por dia, o corte fino é aplicado
     aqui, sobre o que ela devolveu.
+
+    No canal de eventos de usuário, os identificadores conhecidos
+    (e-mail, CPF e RF) são consultados no Keycloak antes da entrega
+    dos eventos para escrita. Eles são armazenados separadamente,
+    vinculados ao mesmo ``usuario_id`` e ``realm`` utilizados pelos
+    eventos de auditoria.
 
     O marcador só avança depois que os eventos foram entregues para
     escrita. Se a entrega falhar, ele fica onde está e a leitura
@@ -126,6 +186,11 @@ def _capturar(
             "novos": 0,
             "checkpoint": checkpoint,
         }
+
+    _registrar_identificadores_dos_usuarios(
+        realm=realm,
+        eventos=novos,
+    )
 
     task_auditoria_persistir_lote.delay(novos)
 

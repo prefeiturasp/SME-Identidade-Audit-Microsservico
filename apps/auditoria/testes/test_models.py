@@ -1,11 +1,15 @@
-"""Testes do modelo de eventos de auditoria."""
+"""Testes dos modelos de auditoria."""
 
 import datetime as dt
 
 import pytest
 from django.db import IntegrityError, transaction
 
-from apps.auditoria.models import CheckpointCaptura, EventoAuditoria
+from apps.auditoria.models import (
+    CheckpointCaptura,
+    EventoAuditoria,
+    IdentificadorUsuarioAuditoria,
+)
 
 
 def _evento(
@@ -20,8 +24,31 @@ def _evento(
         realm="COTIC",
         client_id="auto-servico-qa",
         ip_origem="203.0.113.10",
-        timestamp_evento=dt.datetime(2026, 8, 11, 12, 0, tzinfo=dt.UTC),
+        timestamp_evento=dt.datetime(
+            2026,
+            8,
+            11,
+            12,
+            0,
+            tzinfo=dt.UTC,
+        ),
         detalhes={"username": "1234567"},
+    )
+
+
+def _identificador(
+    *,
+    usuario_id: str = "5c29cc47",
+    realm: str = "realm-id-cotic",
+    tipo: str = IdentificadorUsuarioAuditoria.Tipo.EMAIL,
+    valor: str = "teste@teste.com",
+) -> IdentificadorUsuarioAuditoria:
+    """Monta um identificador válido para os testes."""
+    return IdentificadorUsuarioAuditoria(
+        usuario_id=usuario_id,
+        realm=realm,
+        tipo=tipo,
+        valor=valor,
     )
 
 
@@ -33,7 +60,9 @@ class TestEventoAuditoria:
         """Deve persistir o evento com os campos informados."""
         _evento().save()
 
-        gravado = EventoAuditoria.objects.get(evento_id_origem="chave-a")
+        gravado = EventoAuditoria.objects.get(
+            evento_id_origem="chave-a",
+        )
 
         assert gravado.tipo_evento == "LOGIN"
         assert gravado.realm == "COTIC"
@@ -44,13 +73,20 @@ class TestEventoAuditoria:
         """Deve barrar no banco a segunda gravação da mesma chave."""
         _evento().save()
 
+        duplicado = _evento(
+            tipo_evento="LOGOUT",
+        )
+
         with pytest.raises(IntegrityError), transaction.atomic():
-            _evento(tipo_evento="LOGOUT").save()
+            duplicado.save()
 
     def test_aceita_chaves_de_origem_distintas(self) -> None:
         """Deve permitir eventos diferentes lado a lado."""
         _evento("chave-a").save()
-        _evento("chave-b", tipo_evento="LOGOUT").save()
+        _evento(
+            "chave-b",
+            tipo_evento="LOGOUT",
+        ).save()
 
         assert EventoAuditoria.objects.count() == 2
 
@@ -88,11 +124,16 @@ class TestCheckpointCaptura:
 
     def test_grava_marcador_por_realm(self) -> None:
         """Deve guardar a posição da captura de cada realm."""
-        CheckpointCaptura.objects.create(realm="COTIC", ultimo_timestamp=1000)
+        CheckpointCaptura.objects.create(
+            realm="COTIC",
+            ultimo_timestamp=1000,
+        )
 
-        assert CheckpointCaptura.objects.get(
-            realm="COTIC"
-        ).ultimo_timestamp == (1000)
+        checkpoint = CheckpointCaptura.objects.get(
+            realm="COTIC",
+        )
+
+        assert checkpoint.ultimo_timestamp == 1000
 
     def test_canal_padrao_e_usuario(self) -> None:
         """Deve assumir o canal de usuário quando não informado.
@@ -103,7 +144,8 @@ class TestCheckpointCaptura:
         do canal de usuário.
         """
         checkpoint = CheckpointCaptura.objects.create(
-            realm="COTIC", ultimo_timestamp=1000
+            realm="COTIC",
+            ultimo_timestamp=1000,
         )
 
         assert checkpoint.canal == CheckpointCaptura.CANAL_USUARIO
@@ -125,7 +167,11 @@ class TestCheckpointCaptura:
             ultimo_timestamp=2000,
         )
 
-        assert CheckpointCaptura.objects.filter(realm="COTIC").count() == 2
+        total = CheckpointCaptura.objects.filter(
+            realm="COTIC",
+        ).count()
+
+        assert total == 2
 
     def test_rejeita_realm_e_canal_repetidos(self) -> None:
         """Deve barrar no banco um segundo marcador do mesmo realm/canal."""
@@ -135,12 +181,14 @@ class TestCheckpointCaptura:
             ultimo_timestamp=1000,
         )
 
+        duplicado = CheckpointCaptura(
+            realm="COTIC",
+            canal=CheckpointCaptura.CANAL_USUARIO,
+            ultimo_timestamp=2000,
+        )
+
         with pytest.raises(IntegrityError), transaction.atomic():
-            CheckpointCaptura.objects.create(
-                realm="COTIC",
-                canal=CheckpointCaptura.CANAL_USUARIO,
-                ultimo_timestamp=2000,
-            )
+            duplicado.save()
 
     def test_representacao_textual_traz_realm_canal_e_posicao(self) -> None:
         """Deve identificar o marcador pelo realm, canal e posição."""
@@ -151,3 +199,112 @@ class TestCheckpointCaptura:
         )
 
         assert str(checkpoint) == "COTIC/admin: 1000"
+
+
+@pytest.mark.django_db
+class TestIdentificadorUsuarioAuditoria:
+    """Testes de ``IdentificadorUsuarioAuditoria``."""
+
+    def test_grava_e_recupera_identificador(self) -> None:
+        """Deve persistir um identificador associado ao usuário."""
+        _identificador().save()
+
+        gravado = IdentificadorUsuarioAuditoria.objects.get(
+            usuario_id="5c29cc47",
+            tipo=IdentificadorUsuarioAuditoria.Tipo.EMAIL,
+        )
+
+        assert gravado.realm == "realm-id-cotic"
+        assert gravado.valor == "teste@teste.com"
+        assert gravado.criado_em is not None
+
+    def test_permite_historico_do_mesmo_tipo_para_usuario(self) -> None:
+        """Deve preservar valores antigos quando o identificador mudar."""
+        _identificador(
+            valor="antigo@teste.com",
+        ).save()
+
+        _identificador(
+            valor="novo@teste.com",
+        ).save()
+
+        valores = set(
+            IdentificadorUsuarioAuditoria.objects.filter(
+                usuario_id="5c29cc47",
+                tipo=IdentificadorUsuarioAuditoria.Tipo.EMAIL,
+            ).values_list(
+                "valor",
+                flat=True,
+            )
+        )
+
+        assert valores == {
+            "antigo@teste.com",
+            "novo@teste.com",
+        }
+
+    def test_rejeita_identificador_exatamente_repetido(self) -> None:
+        """Deve impedir a duplicação do mesmo identificador do usuário."""
+        _identificador().save()
+
+        duplicado = _identificador()
+
+        with pytest.raises(IntegrityError), transaction.atomic():
+            duplicado.save()
+
+    def test_permite_mesmo_identificador_para_usuarios_distintos(
+        self,
+    ) -> None:
+        """Deve permitir reutilização histórica por outro usuário."""
+        _identificador(
+            usuario_id="usuario-a",
+            valor="compartilhado@teste.com",
+        ).save()
+
+        _identificador(
+            usuario_id="usuario-b",
+            valor="compartilhado@teste.com",
+        ).save()
+
+        total = IdentificadorUsuarioAuditoria.objects.filter(
+            valor="compartilhado@teste.com",
+        ).count()
+
+        assert total == 2
+
+    def test_representacao_textual_traz_tipo_valor_e_usuario(self) -> None:
+        """Deve identificar claramente o vínculo histórico."""
+        identificador = _identificador(
+            usuario_id="usuario-123",
+            tipo=IdentificadorUsuarioAuditoria.Tipo.CPF,
+            valor="12345678901",
+        )
+
+        assert str(identificador) == ("CPF: 12345678901 -> usuario-123")
+
+    def test_declara_a_restricao_de_unicidade(self) -> None:
+        """Deve manter a restrição usada para evitar duplicações."""
+        nomes = {
+            restricao.name
+            for restricao in IdentificadorUsuarioAuditoria._meta.constraints  # noqa: SLF001
+        }
+
+        assert "uniq_identificador_usuario_auditoria" in nomes
+
+    def test_declara_os_indices_de_busca(self) -> None:
+        """Deve manter os índices usados na resolução dos usuários."""
+        indices = {
+            indice.name: tuple(indice.fields)
+            for indice in IdentificadorUsuarioAuditoria._meta.indexes  # noqa: SLF001
+        }
+
+        assert indices["idx_ident_auditoria_busca"] == (
+            "realm",
+            "tipo",
+            "valor",
+        )
+
+        assert indices["idx_ident_auditoria_usuario"] == (
+            "realm",
+            "usuario_id",
+        )

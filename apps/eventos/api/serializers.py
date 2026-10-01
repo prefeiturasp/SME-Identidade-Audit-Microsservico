@@ -25,3 +25,9 @@ class GatilhoPollResponseSerializer(serializers.Serializer):
 
     situacao = serializers.CharField()
     realm = serializers.CharField()
+
+
+class GatilhoPollAdminRequestSerializer(serializers.Serializer):
+    """Solicita a consulta antecipada dos Admin Events de um realm."""
+
+    realm = serializers.CharField(max_length=100)

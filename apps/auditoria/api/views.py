@@ -45,7 +45,10 @@ class EventoAuditoriaListView(ListAPIView):
             OpenApiParameter(
                 "usuario_id",
                 str,
-                description="Identificador do usuário no Keycloak.",
+                description=(
+                    "Identificador do usuário. Aceita ID do Keycloak, "
+                    "e-mail, CPF ou RF, incluindo valores históricos."
+                ),
             ),
             OpenApiParameter(
                 "client_id",

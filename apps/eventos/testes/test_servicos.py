@@ -1,5 +1,6 @@
 """Testes da leitura de eventos e do marcador de captura."""
 
+from collections.abc import Iterator
 from typing import Any
 from unittest.mock import patch
 
@@ -9,6 +10,7 @@ from apps.auditoria.models import CheckpointCaptura
 from apps.eventos.clientes.keycloak_admin import KeycloakAdminError
 from apps.eventos.servicos import (
     _avancar_checkpoint,
+    _registrar_identificadores_dos_usuarios,
     capturar_admin_events,
     capturar_eventos,
     obter_checkpoint,
@@ -19,6 +21,13 @@ _CONSULTAR_ADMIN = (
     "apps.eventos.servicos.keycloak_admin.consultar_admin_events"
 )
 _PERSISTIR = "apps.eventos.servicos.task_auditoria_persistir_lote"
+_CONSULTAR_USUARIO = "apps.eventos.servicos.keycloak_admin.consultar_usuario"
+_EXTRAIR_IDENTIFICADORES = (
+    "apps.eventos.servicos.extrair_identificadores_usuario"
+)
+_REGISTRAR_IDENTIFICADORES = (
+    "apps.eventos.servicos.registrar_identificadores_usuario"
+)
 
 
 def _bruto(instante: int, tipo: str = "LOGIN") -> dict[str, Any]:
@@ -50,6 +59,16 @@ def _admin_bruto(instante: int) -> dict[str, Any]:
         "resourceType": "USER",
         "resourcePath": "users/algum-id",
     }
+
+
+@pytest.fixture(autouse=True)
+def _mock_consulta_usuario_keycloak() -> Iterator[None]:
+    """Impede chamadas reais ao Keycloak durante os testes do serviço."""
+    with patch(
+        _CONSULTAR_USUARIO,
+        return_value=None,
+    ):
+        yield
 
 
 @pytest.mark.django_db
@@ -295,3 +314,113 @@ class TestAvancarCheckpoint:
 
         assert obter_checkpoint("COTIC") == 5000
         assert obter_checkpoint("OUTRO") == 1000
+
+
+class TestRegistrarIdentificadoresDosUsuarios:
+    """Testes do enriquecimento dos usuários presentes no lote."""
+
+    def test_extrai_e_registra_identificadores_do_usuario(
+        self,
+    ) -> None:
+        """Deve registrar os identificadores retornados pelo Keycloak."""
+        eventos = [
+            {
+                "usuario_id": "usuario-123",
+                "realm": "realm-id-cotic",
+            }
+        ]
+
+        usuario = {
+            "id": "usuario-123",
+            "email": "teste@teste.com",
+            "attributes": {
+                "cpf": ["12345678901"],
+                "rf": ["1234567"],
+            },
+        }
+
+        identificadores = {
+            "usuario_id": "usuario-123",
+            "email": "teste@teste.com",
+            "cpf": "12345678901",
+            "rf": "1234567",
+        }
+
+        with (
+            patch(
+                _CONSULTAR_USUARIO,
+                return_value=usuario,
+            ) as consultar,
+            patch(
+                _EXTRAIR_IDENTIFICADORES,
+                return_value=identificadores,
+            ) as extrair,
+            patch(
+                _REGISTRAR_IDENTIFICADORES,
+            ) as registrar,
+        ):
+            _registrar_identificadores_dos_usuarios(
+                realm="COTIC",
+                eventos=eventos,
+            )
+
+        consultar.assert_called_once_with(
+            realm="COTIC",
+            usuario_id="usuario-123",
+        )
+        extrair.assert_called_once_with(usuario)
+        registrar.assert_called_once_with(
+            realm="realm-id-cotic",
+            identificadores=identificadores,
+        )
+
+    def test_consulta_usuario_uma_vez_por_lote(
+        self,
+    ) -> None:
+        """Deve consultar uma única vez usuários repetidos no lote."""
+        eventos = [
+            {
+                "usuario_id": "usuario-123",
+                "realm": "realm-id-cotic",
+            },
+            {
+                "usuario_id": "usuario-123",
+                "realm": "realm-id-cotic",
+            },
+            {
+                "usuario_id": "usuario-123",
+                "realm": "realm-id-cotic",
+            },
+        ]
+
+        usuario = {
+            "id": "usuario-123",
+        }
+
+        with (
+            patch(
+                _CONSULTAR_USUARIO,
+                return_value=usuario,
+            ) as consultar,
+            patch(
+                _EXTRAIR_IDENTIFICADORES,
+                return_value={
+                    "usuario_id": "usuario-123",
+                    "email": None,
+                    "cpf": None,
+                    "rf": None,
+                },
+            ),
+            patch(
+                _REGISTRAR_IDENTIFICADORES,
+            ),
+        ):
+            _registrar_identificadores_dos_usuarios(
+                realm="COTIC",
+                eventos=eventos,
+            )
+
+        consultar.assert_called_once_with(
+            realm="COTIC",
+            usuario_id="usuario-123",
+        )

@@ -221,3 +221,51 @@ def consultar_admin_events(
         )
 
     return corpo
+
+
+def consultar_usuario(
+    realm: str,
+    usuario_id: str,
+) -> dict[str, Any] | None:
+    """Consulta os dados atuais de um usuário no Keycloak.
+
+    Args:
+        realm: Realm do Keycloak.
+        usuario_id: ID interno do usuário no Keycloak.
+
+    Returns:
+        Representação bruta do usuário ou ``None`` caso ele não exista.
+
+    Raises:
+        KeycloakAdminError: Se a consulta não for concluída.
+    """
+    token = obter_token_acesso()
+
+    url = f"{_url_base()}/admin/realms/{realm}/users/{usuario_id}"
+
+    try:
+        resposta = httpx.get(
+            url,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=settings.KEYCLOAK_TIMEOUT,
+            verify=settings.KEYCLOAK_VERIFICAR_SSL,
+        )
+    except httpx.HTTPError as exc:
+        raise KeycloakAdminError(
+            f"Falha ao consultar usuário no Keycloak: {exc}"
+        ) from exc
+
+    if resposta.status_code == 404:
+        return None
+
+    if resposta.status_code != 200:
+        raise KeycloakAdminError(
+            f"Consulta de usuário recusada: {resposta.status_code}"
+        )
+
+    corpo = resposta.json()
+
+    if not isinstance(corpo, dict):
+        raise KeycloakAdminError("Resposta de usuário em formato inesperado.")
+
+    return corpo
