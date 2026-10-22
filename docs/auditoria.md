@@ -24,7 +24,7 @@ normalizados pela captura, por fila, e concentra a escrita no Postgres.
 que hoje parece irrelevante pode ser exatamente o que uma apuração futura
 precisa, e o dado descartado na escrita não tem como ser recuperado depois.
 
-### Índices
+### Índices `EventoAuditoria`
 
 Três índices compostos cobrem as consultas previstas de apuração, sempre
 recortadas por período:
@@ -79,7 +79,7 @@ Isso é intencional: a auditoria registra o que foi observado ao longo do
 tempo, em vez de assumir que um e-mail, CPF ou RF jamais poderá ser reutilizado
 ou corrigido.
 
-### Índices
+### Índices `IdentificadorUsuarioAuditoria`
 
 Dois índices atendem à resolução dos identificadores:
 
